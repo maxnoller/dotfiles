@@ -40,7 +40,7 @@
     - name: Run development tools setup
       include_tasks: "{{ item }}"
       with_items:
-        - tasks/git.yml  # Add this line
+        - tasks/git.yml
         - tasks/neovim.yml
         - tasks/python_uv.yml
         - tasks/tmux.yml
