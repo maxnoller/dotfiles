@@ -1,0 +1,22 @@
+---
+- name: Clone TPM (Tmux Plugin Manager) repository
+  ansible.builtin.git:
+    repo: https://github.com/tmux-plugins/tpm.git
+    dest: "{{ lookup('env', 'HOME') }}/.tmux/plugins/tpm"
+    version: master
+    force: yes
+    update: yes
+
+- name: Deploy tmux configuration using GNU Stow
+  ansible.builtin.command:
+    cmd: stow -t "{{ lookup('env', 'HOME') }}" tmux
+    chdir: "{{ dotfiles_dir }}"
+  register: stow_tmux
+  changed_when: "'LINK:' in stow_tmux.stdout"
+
+- name: Reload tmux configuration if tmux is running
+  ansible.builtin.shell: |
+    if pgrep tmux > /dev/null; then
+      tmux source-file {{ lookup('env', 'HOME') }}/.tmux.conf
+    fi
+  ignore_errors: true

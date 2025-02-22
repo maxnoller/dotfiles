@@ -1,0 +1,51 @@
+---
+- name: Setup Development Environment
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    dotfiles_dir: "{{ lookup('env', 'HOME') }}/setup/dotfiles"
+
+  pre_tasks:
+    - name: Collect all required system packages
+      set_fact:
+        system_packages:
+          - git
+          - stow
+          - curl
+          - ripgrep
+          - fzf
+          - luarocks
+          - tree-sitter-cli
+          - build-essential
+          - tmux
+          - xclip
+          - python3
+          - python3-virtualenv
+
+    - name: Update apt cache and upgrade all packages
+      become: yes
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        upgrade: dist
+
+    - name: Install all system packages at once
+      become: yes
+      ansible.builtin.apt:
+        name: "{{ system_packages }}"
+        state: latest
+
+  tasks:
+    - name: Run development tools setup
+      include_tasks: "{{ item }}"
+      with_items:
+        - tasks/git.yml  # Add this line
+        - tasks/neovim.yml
+        - tasks/python_uv.yml
+        - tasks/tmux.yml
+        - tasks/node.yml
+
+    - name: Display completion status
+      debug:
+        msg: "All development tools have been installed and configured"

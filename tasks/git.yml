@@ -1,0 +1,42 @@
+---
+- name: Ensure Git is installed
+  become: true
+  ansible.builtin.apt:
+    name: git
+    state: present
+
+- name: Set Git default branch to main
+  ansible.builtin.git_config:
+    name: init.defaultBranch
+    scope: global
+    value: main
+
+- name: Set Git user name
+  ansible.builtin.git_config:
+    name: user.name
+    scope: global
+    value: "Maximilian Noller"
+
+- name: Create Git URL-specific configuration
+  ansible.builtin.copy:
+    dest: "{{ lookup('env', 'HOME') }}/.gitconfig"
+    content: |
+      [user]
+        name = Maximilian Noller
+        email = max.noller1@gmail.com
+
+      [includeIf "hasconfig:remote.*.url:gitlab.ub.uni-bielefeld.de*/**"]
+        path = ~/.gitconfig-work
+
+- name: Create work Git config
+  ansible.builtin.copy:
+    dest: "{{ lookup('env', 'HOME') }}/.gitconfig-work"
+    content: |
+      [user]
+        email = maximilian.noller@uni-bielefeld.de
+
+- name: Create projects directory
+  ansible.builtin.file:
+    path: "{{ lookup('env', 'HOME') }}/projects"
+    state: directory
+    mode: '0755'

@@ -1,0 +1,15 @@
+---
+- name: Check if uv is installed
+  ansible.builtin.shell: "command -v uv"
+  register: uv_check
+  ignore_errors: yes
+  changed_when: false
+
+- name: Install uv Python package manager using standalone installer
+  ansible.builtin.shell: |
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+  args:
+    executable: /bin/bash
+  when: uv_check.rc != 0
+  register: uv_install
+  changed_when: uv_install.rc == 0

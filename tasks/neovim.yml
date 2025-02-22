@@ -1,0 +1,20 @@
+---
+- name: Add Neovim unstable PPA
+  become: yes
+  ansible.builtin.apt_repository:
+    repo: ppa:neovim-ppa/unstable
+    state: present
+
+- name: Install Neovim
+  become: yes
+  ansible.builtin.apt:
+    name: neovim
+    state: latest
+    update_cache: yes
+
+- name: Deploy Neovim configuration using GNU Stow
+  ansible.builtin.command:
+    cmd: stow -t "{{ lookup('env', 'HOME') }}" nvim
+    chdir: "{{ dotfiles_dir }}"
+  register: stow_nvim
+  changed_when: "'LINK:' in stow_nvim.stdout"
