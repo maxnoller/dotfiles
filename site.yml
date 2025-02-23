@@ -4,7 +4,7 @@
   connection: local
   gather_facts: false
   vars:
-    dotfiles_dir: "{{ lookup('env', 'HOME') }}/setup/dotfiles"
+    dotfiles_dir: "{{ lookup('env', 'HOME') }}/dotfiles/config"
 
   pre_tasks:
     - name: Collect all required system packages
