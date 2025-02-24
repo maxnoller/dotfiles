@@ -23,6 +23,7 @@
           - python3
           - python3-venv
           - python3-pip
+          - zsh
 
     - name: Update apt cache and upgrade all packages
       become: yes
@@ -41,6 +42,7 @@
     - name: Run development tools setup
       include_tasks: "{{ item }}"
       with_items:
+        - tasks/zsh.yml
         - tasks/git.yml
         - tasks/neovim.yml
         - tasks/python_uv.yml
