@@ -2,7 +2,7 @@
 - name: Check if uv is installed
   ansible.builtin.shell: "command -v uv"
   register: uv_check
-  ignore_errors: yes
+  ignore_errors: true
   changed_when: false
 
 - name: Install uv Python package manager using standalone installer
@@ -13,3 +13,9 @@
   when: uv_check.rc != 0
   register: uv_install
   changed_when: uv_install.rc == 0
+
+- name: Update uv if it is already installed
+  ansible.builtin.shell: "uv self update"
+  when: uv_check.rc == 0
+  register: uv_update
+  changed_when: uv_update.rc == 0
