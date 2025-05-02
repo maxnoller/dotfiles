@@ -51,14 +51,14 @@ autocmd("BufReadPost", {
     desc = "Return to last edit position when opening files"
 })
 
--- Auto formatting
-autocmd("BufWritePre", {
-    group = MX2000_GROUP,
-    callback = function()
-        vim.lsp.buf.format({ async = false })
-    end,
-    desc = "Auto format on save"
-})
+-- Auto formatting (removed in favor of conform.nvim)
+-- autocmd("BufWritePre", {
+--     group = MX2000_GROUP,
+--     callback = function()
+--         vim.lsp.buf.format({ async = false })
+--     end,
+--     desc = "Auto format on save"
+-- })
 
 -- Terminal settings
 autocmd("TermOpen", {
@@ -112,3 +112,7 @@ autocmd("LspAttach", {
     end,
     desc = "LSP configurations"
 })
+
+-- Show line diagnostics automatically in hover window
+vim.o.updatetime = 250
+-- vim.cmd([[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]])

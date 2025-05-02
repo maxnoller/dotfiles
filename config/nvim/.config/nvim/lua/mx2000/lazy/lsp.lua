@@ -44,7 +44,7 @@ return {
 			cmp_lsp.default_capabilities()
 		)
 
-		local mason_lspconfig = require("mason-lspconfig").setup({
+		require("mason-lspconfig").setup({
 			ensure_installed = {
 				"ts_ls",
 				"html",
