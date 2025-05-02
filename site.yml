@@ -24,6 +24,7 @@
           - python3-venv
           - python3-pip
           - zsh
+          - gh
 
     - name: Update apt cache and upgrade all packages
       become: yes
@@ -44,6 +45,7 @@
       with_items:
         - tasks/zsh.yml
         - tasks/git.yml
+        - tasks/github.yml
         - tasks/neovim.yml
         - tasks/python_uv.yml
         - tasks/tmux.yml

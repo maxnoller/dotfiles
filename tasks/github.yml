@@ -1,0 +1,17 @@
+---
+- name: Check if GitHub CLI is installed
+  ansible.builtin.command: gh --version
+  register: gh_check
+  ignore_errors: yes
+  changed_when: false
+
+- name: Install GitHub CLI
+  become: true
+  ansible.builtin.apt:
+    name: gh
+    state: present
+  when: gh_check.rc != 0
+
+- name: Display GitHub CLI version
+  ansible.builtin.debug:
+    msg: "GitHub CLI installed: {{ gh_check.stdout_lines[0] | default('newly installed') }}"
