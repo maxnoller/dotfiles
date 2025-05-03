@@ -54,12 +54,19 @@
   register: zsh_syntax_highlighting_cloned
   changed_when: zsh_syntax_highlighting_cloned.changed
 
+- name: Check if .zshrc exists and is a regular file
+  ansible.builtin.stat:
+    path: "{{ lookup('env', 'HOME') }}/.zshrc"
+  register: zshrc_file_check
+  ignore_errors: true # Use ignore_errors instead
+
 - name: Remove existing .zshrc file if it is not a symlink
   ansible.builtin.file:
     path: "{{ lookup('env', 'HOME') }}/.zshrc"
     state: absent
   become: false
-  # Always ensure .zshrc is absent before stowing
+  when: zshrc_file_check.stat.exists and not zshrc_file_check.stat.islnk
+  # Only remove if it exists and is NOT a symlink
 
 - name: Check state of .zshrc before stowing
   ansible.builtin.stat:
