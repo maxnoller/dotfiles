@@ -10,8 +10,10 @@
 - name: Deploy tmux configuration using GNU Stow
   ansible.builtin.command:
     cmd: stow -t "{{ lookup('env', 'HOME') }}" tmux
-    chdir: "{{ dotfiles_dir }}"
+    chdir: "{{ dotfiles_dir }}/config"
   register: stow_tmux
+  # NOTE: changed_when relies on stow's stdout. A more robust check
+  # could involve using stat on a key symlink (e.g., ~/.tmux.conf).
   changed_when: "'LINK:' in stow_tmux.stdout"
 
 - name: Reload tmux configuration if tmux is running

@@ -11,6 +11,8 @@
     cmd: stow -t "{{ lookup('env', 'HOME') }}" nvim
     chdir: "{{ dotfiles_dir }}/config"
   register: stow_nvim
+  # NOTE: changed_when relies on stow's stdout. A more robust check
+  # could involve using stat on a key symlink (e.g., ~/.config/nvim).
   changed_when: "'LINK:' in stow_nvim.stdout"
   tags:
     - neovim

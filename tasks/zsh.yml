@@ -16,8 +16,10 @@
 - name: Deploy ZSH configuration using GNU Stow
   ansible.builtin.command:
     cmd: stow -t "{{ lookup('env', 'HOME') }}" zsh
-    chdir: "{{ dotfiles_dir }}"
+    chdir: "{{ dotfiles_dir }}/config"
   register: stow_zsh
+  # NOTE: changed_when relies on stow's stdout. A more robust check
+  # could involve using stat on a key symlink (e.g., ~/.zshrc).
   changed_when: "'LINK:' in stow_zsh.stdout"
 
 - name: Set ZSH as default shell

@@ -2,7 +2,8 @@
 - name: Setup Development Environment
   hosts: localhost
   connection: local
-  gather_facts: false
+  gather_facts: true
+  gather_subset: ['!all', 'min']
   vars:
     dotfiles_dir: "{{ playbook_dir }}"
     required_packages:
@@ -29,12 +30,33 @@
       when: required_packages | length > 0
 
   tasks:
-    - name: Run development tools setup tasks
-      ansible.builtin.include_tasks:
-        file: "{{ item }}"
-      loop: "{{ query('fileglob', 'tasks/*.yml') }}"
-      loop_control:
-        loop_var: item
+    - name: Run Git setup tasks
+      ansible.builtin.include_tasks: tasks/git.yml
+      tags: [git, tools]
+
+    - name: Run Zsh setup tasks
+      ansible.builtin.include_tasks: tasks/zsh.yml
+      tags: [zsh, tools]
+
+    - name: Run Tmux setup tasks
+      ansible.builtin.include_tasks: tasks/tmux.yml
+      tags: [tmux, tools]
+
+    - name: Run Node.js setup tasks
+      ansible.builtin.include_tasks: tasks/node.yml
+      tags: [node, tools]
+
+    - name: Run Python/uv setup tasks
+      ansible.builtin.include_tasks: tasks/python_uv.yml
+      tags: [python, uv, tools]
+
+    - name: Run Neovim setup tasks
+      ansible.builtin.include_tasks: tasks/neovim.yml
+      tags: [neovim, tools]
+
+    - name: Run GitHub setup tasks
+      ansible.builtin.include_tasks: tasks/github.yml
+      tags: [github, tools]
 
     - name: Display completion status
       ansible.builtin.debug:
