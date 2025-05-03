@@ -6,13 +6,6 @@
     state: present
     update_cache: true
 
-- name: Install Neovim
-  become: true
-  ansible.builtin.apt:
-    name: neovim
-    state: present
-    update_cache: true
-
 - name: Deploy Neovim configuration using GNU Stow
   ansible.builtin.command:
     cmd: stow -t "{{ lookup('env', 'HOME') }}" nvim

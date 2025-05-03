@@ -1,6 +1,0 @@
----
-- name: Source NVM
-  ansible.builtin.shell:
-    cmd: 'source $HOME/.nvm/nvm.sh && echo "nvm loaded by handler"'
-    executable: /bin/bash
-  listen: "Source NVM"

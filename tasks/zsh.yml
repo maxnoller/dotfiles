@@ -1,10 +1,4 @@
 ---
-- name: Install zsh
-  become: true
-  ansible.builtin.apt:
-    name: zsh
-    state: present
-
 - name: Check if Oh My Zsh is installed
   ansible.builtin.stat:
     path: "{{ lookup('env', 'HOME') }}/.oh-my-zsh"

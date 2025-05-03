@@ -50,3 +50,17 @@
   tags:
     - node
     - tools
+
+- name: Ensure .zshrc sources NVM
+  ansible.builtin.blockinfile:
+    path: "{{ lookup('env', 'HOME') }}/.zshrc"
+    create: yes # Create the file if it doesn't exist
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
+    mode: "0644"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK NVM"
+    block: |
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+  when: nvm_check.stat.exists or nvm_installed.changed # Only run if NVM is installed or was just installed

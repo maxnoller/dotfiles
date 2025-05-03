@@ -5,14 +5,14 @@
   gather_facts: false
   vars:
     dotfiles_dir: "{{ lookup('env', 'HOME') }}/dotfiles/config"
-    required_packages: []
+    required_packages:
+      - git
+      - zsh
+      - stow
+      - curl
+      - neovim
 
   pre_tasks:
-    - name: Collect required system packages
-      ansible.builtin.set_fact:
-        required_packages: "{{ required_packages | union(lookup('file', item).splitlines()) }}"
-      loop: "{{ role_files }}"
-
     - name: Update apt cache and upgrade all packages
       become: yes
       ansible.builtin.apt:
@@ -20,7 +20,7 @@
         cache_valid_time: 3600
         upgrade: dist
 
-    - name: Install all system packages at once
+    - name: Install all required system packages
       become: true
       ansible.builtin.apt:
         name: "{{ required_packages }}"
@@ -28,21 +28,13 @@
         update_cache: yes
       when: required_packages | length > 0
 
-  handlers:
-    - name: Include Handlers
-      ansible.builtin.include_tasks: handlers/main.yml
-
   tasks:
-    - name: Run development tools setup
+    - name: Run development tools setup tasks
       ansible.builtin.include_tasks:
         file: "{{ item }}"
-      loop: "{{ role_files }}"
-      when: not playbook_dir == ansible_env.HOME ~ '/.dotfiles'
-
-    - name: Verify dotfiles location
-      ansible.builtin.debug:
-        msg: "Dotfiles are located correctly at {{ playbook_dir }}"
-      when: playbook_dir == ansible_env.HOME ~ '/.dotfiles'
+      loop: "{{ query('fileglob', 'tasks/*.yml') }}"
+      loop_control:
+        loop_var: item
 
     - name: Display completion status
       ansible.builtin.debug:

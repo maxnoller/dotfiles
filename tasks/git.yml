@@ -1,10 +1,4 @@
 ---
-- name: Ensure Git is installed
-  become: true
-  ansible.builtin.apt:
-    name: git
-    state: present
-
 - name: Create Git configuration
   ansible.builtin.copy:
     dest: "{{ lookup('env', 'HOME') }}/.gitconfig"
