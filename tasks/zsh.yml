@@ -18,17 +18,23 @@
     path: "{{ lookup('env', 'HOME') }}/.zshrc"
     state: absent
   become: false # Ensure we operate as the user
-  # Only remove if it exists and is a regular file (Oh My Zsh creates this)
-  when: oh_my_zsh_check.stat.exists and oh_my_zsh_check.stat.isreg
+  # Removed condition - always ensure .zshrc is absent before stowing
+
+- name: Check state of .zshrc before stowing
+  ansible.builtin.stat:
+    path: "{{ lookup('env', 'HOME') }}/.zshrc"
+  register: zshrc_link_status
 
 - name: Deploy ZSH configuration using GNU Stow
   ansible.builtin.command:
-    cmd: stow -t "{{ lookup('env', 'HOME') }}" .
-    chdir: "{{ dotfiles_dir }}/config/zsh"
-  register: stow_zsh
-  # NOTE: changed_when relies on stow's stdout. A more robust check
-  # could involve using stat on a key symlink (e.g., ~/.zshrc).
-  changed_when: "'LINK:' in stow_zsh.stdout"
+    cmd: stow -t "{{ lookup('env', 'HOME') }}" -d "{{ dotfiles_dir }}/config" zsh
+    # Removed chdir, using explicit -d for stow directory
+  register: stow_zsh_result # Renamed register variable
+  # Changed when the link didn't exist or was incorrect before running stow
+  changed_when: >
+    not zshrc_link_status.stat.exists or
+    not zshrc_link_status.stat.islnk or
+    zshrc_link_status.stat.lnk_source != dotfiles_dir + '/config/zsh/.zshrc'
 
 - name: Set ZSH as default shell
   become: true
