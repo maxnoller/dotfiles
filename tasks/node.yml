@@ -58,11 +58,8 @@
 
 - name: Ensure .zshrc sources NVM
   ansible.builtin.blockinfile:
-    path: "{{ lookup('env', 'HOME') }}/.zshrc"
+    path: "{{ dotfiles_dir }}/config/zsh/.zshrc"
     create: true
-    owner: "{{ lookup('env', 'USER') }}"
-    group: "{{ lookup('env', 'USER') }}"
-    mode: "0644"
     marker: "# {mark} ANSIBLE MANAGED BLOCK NVM"
     block: |
       export NVM_DIR="$HOME/.nvm"
