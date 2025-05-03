@@ -13,10 +13,18 @@
   register: oh_my_zsh_installed
   changed_when: not oh_my_zsh_check.stat.exists
 
+- name: Remove existing .zshrc file if it is not a symlink
+  ansible.builtin.file:
+    path: "{{ lookup('env', 'HOME') }}/.zshrc"
+    state: absent
+  become: false # Ensure we operate as the user
+  # Only remove if it exists and is a regular file (Oh My Zsh creates this)
+  when: oh_my_zsh_check.stat.exists and oh_my_zsh_check.stat.isreg
+
 - name: Deploy ZSH configuration using GNU Stow
   ansible.builtin.command:
-    cmd: stow -R -t "{{ lookup('env', 'HOME') }}" zsh
-    chdir: "{{ dotfiles_dir }}/config"
+    cmd: stow -t "{{ lookup('env', 'HOME') }}" .
+    chdir: "{{ dotfiles_dir }}/config/zsh"
   register: stow_zsh
   # NOTE: changed_when relies on stow's stdout. A more robust check
   # could involve using stat on a key symlink (e.g., ~/.zshrc).
