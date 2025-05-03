@@ -16,7 +16,18 @@
 
   handlers:
     - name: Reload zsh config
-      ansible.builtin.include_tasks: handlers/main.yml
+      ansible.builtin.debug:
+        msg: "Zsh configuration updated. Please restart your shell or run 'source ~/.zshrc' for changes to take effect."
+      listen: "Reload zsh config"
+    - name: Reload tmux config
+      ansible.builtin.shell: |
+        if pgrep tmux > /dev/null; then
+          tmux source-file {{ lookup('env', 'HOME') }}/.tmux.conf
+        fi
+      args:
+        executable: /bin/bash
+      changed_when: false
+      failed_when: false
 
   pre_tasks:
     - name: Update apt cache and upgrade all packages
