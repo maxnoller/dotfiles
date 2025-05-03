@@ -12,8 +12,6 @@
 
       [includeIf "hasconfig:remote.*.url:gitlab.ub.uni-bielefeld.de*/**"]
         path = ~/.gitconfig-work
-    owner: "{{ lookup('env', 'USER') }}"
-    group: "{{ lookup('env', 'USER') }}"
     mode: "0600"
 
 - name: Create work Git config
@@ -22,8 +20,6 @@
     content: |
       [user]
         email = maximilian.noller@uni-bielefeld.de
-    owner: "{{ lookup('env', 'USER') }}"
-    group: "{{ lookup('env', 'USER') }}"
     mode: "0600"
 
 - name: Create projects directory
