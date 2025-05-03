@@ -60,7 +60,6 @@
   ansible.builtin.blockinfile:
     path: "{{ dotfiles_dir }}/config/zsh/.zshrc"
     create: true
-    mode: preserve
     marker: "# {mark} ANSIBLE MANAGED BLOCK NVM"
     block: |
       export NVM_DIR="$HOME/.nvm"
