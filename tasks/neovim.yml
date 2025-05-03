@@ -9,7 +9,7 @@
 - name: Deploy Neovim configuration using GNU Stow
   ansible.builtin.command:
     cmd: stow -t "{{ lookup('env', 'HOME') }}" nvim
-    chdir: "{{ dotfiles_dir }}"
+    chdir: "{{ dotfiles_dir }}/config"
   register: stow_nvim
   changed_when: "'LINK:' in stow_nvim.stdout"
   tags:
