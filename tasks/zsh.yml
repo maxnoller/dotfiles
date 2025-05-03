@@ -15,7 +15,7 @@
 
 - name: Deploy ZSH configuration using GNU Stow
   ansible.builtin.command:
-    cmd: stow -t "{{ lookup('env', 'HOME') }}" zsh
+    cmd: stow -R -t "{{ lookup('env', 'HOME') }}" zsh
     chdir: "{{ dotfiles_dir }}/config"
   register: stow_zsh
   # NOTE: changed_when relies on stow's stdout. A more robust check
