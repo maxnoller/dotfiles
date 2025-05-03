@@ -101,6 +101,7 @@ jobs:
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+          GH_TOKEN: ${{ github.token }}
 
       - name: Check Ansible playbook syntax
         run: |
