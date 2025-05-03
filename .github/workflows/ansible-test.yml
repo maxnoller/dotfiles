@@ -105,7 +105,7 @@ jobs:
 
       - name: Check Ansible playbook syntax
         run: |
-          uvx ansible-playbook site.yml --syntax-check
+          ansible-playbook site.yml --syntax-check
 
       - name: Run Ansible playbook in check mode
         run: |
