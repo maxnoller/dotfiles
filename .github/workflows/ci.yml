@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site.yml"
+      - "tasks/**"
+      - ".github/workflows/ci.yml" # Trigger on changes to the workflow itself
+  pull_request:
+    branches: [main]
+    paths:
+      - "site.yml"
+      - "tasks/**"
+      - ".github/workflows/ci.yml"
+
+jobs:
+  lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Use setup-uv action for consistency and potential caching
+      - name: Install uv and cache dependencies
+        uses: astral-sh/setup-uv@v1 # Pin to v1 for stability
+        with:
+          # Specify the uv version if needed, otherwise uses latest
+          # version: "0.x.y"
+          enable-cache: true
+          # Even if ansible-lint isn't in requirements, this might cache uv itself
+          cache-dependency-glob: "requirements-dev.txt"
+
+      - name: Install ansible-lint with uv pip
+        run: |
+          uv pip install --system ansible-lint
+
+      - name: Run ansible-lint with GitHub annotations
+        run: |
+          ansible-lint -f github
+
+  test:
+    name: Molecule Test
+    runs-on: ubuntu-latest
+    needs: lint # Run only after lint job succeeds
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12" # Align Python version
+
+      # Use setup-uv action
+      - name: Install uv
+        uses: astral-sh/setup-uv@v1
+        with:
+          enable-cache: true
+          cache-dependency-glob: "requirements-dev.txt" # Primarily for uv caching here
+
+      - name: Install dependencies with uv pip
+        run: |
+          # Ensure docker client is installed if needed by molecule-docker/testinfra
+          # Usually available on runners, but good practice if specific version needed
+          # sudo apt-get update && sudo apt-get install -y docker-ce-cli
+          uv pip install --system ansible ansible-core molecule molecule-plugins[docker] molecule-docker docker pytest pytest-testinfra
+          uv pip list
+
+      - name: Setup Docker Buildx (needed by Molecule Docker driver)
+        uses: docker/setup-buildx-action@v3
+        # No need to install docker itself, just setup buildx driver
+        # Keep install: true if you face issues without it
+
+      - name: Setup Molecule Configuration
+        run: |
+          mkdir -p molecule/default
+          cat > molecule/default/molecule.yml << EOF
+          ---
+          dependency:
+            name: galaxy
+          driver:
+            name: docker
+          platforms:
+            - name: instance
+              image: geerlingguy/docker-ubuntu2204-ansible:latest
+              pre_build_image: true
+              privileged: true
+              command: ""
+              volumes:
+                - /sys/fs/cgroup:/sys/fs/cgroup:rw
+              cgroupns_mode: host
+          provisioner:
+            name: ansible
+            env:
+              ANSIBLE_FORCE_COLOR: "true"
+          verifier:
+            name: testinfra
+          EOF
+          cat > molecule/default/converge.yml << EOF
+          ---
+          - name: Import main playbook
+            import_playbook: ../../site.yml
+          EOF
+          # Minimal verify just to ensure molecule runs it
+          cat > molecule/default/verify.yml << EOF
+          ---
+          - name: Verify Host Connectivity
+            hosts: all
+            gather_facts: false
+            tasks:
+              - name: Check basic connectivity
+                ansible.builtin.ping:
+          EOF
+
+      # Optional debug step
+      # - name: Debug Molecule and Python environment
+      #   run: |
+      #     molecule --version
+      #     # molecule driver list is deprecated, use molecule --version
+      #     uv pip list
+
+      - name: Run Molecule tests
+        run: molecule test
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+          # Pass github token if molecule/playbook needs it (e.g., for private galaxy roles)
+          # GH_TOKEN: ${{ github.token }}
+
+      # Removed the final '--check' step as Molecule test covers convergence 
