@@ -112,16 +112,6 @@ jobs:
             tasks:
               - name: Run Python/uv setup tasks
                 ansible.builtin.include_tasks: ../../tasks/python_uv.yml
-              # Add symlink after install to make uv findable in standard PATH for idempotence check
-              - name: Ensure uv is symlinked to /usr/local/bin for subsequent checks
-                ansible.builtin.command:
-                  cmd: ln -sf /root/.uv/bin/uv /usr/local/bin/uv
-                # Run this even in check mode so the link exists for idempotence
-                check_mode: false 
-                # Ignore errors if the source doesn't exist (e.g., first run before install)
-                ignore_errors: true 
-                # This task itself should ideally be idempotent, but linking is safe
-                changed_when: false 
           EOF
           # Minimal verify just to ensure molecule runs it
           cat > molecule/default/verify.yml << EOF

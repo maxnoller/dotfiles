@@ -1,23 +1,28 @@
 ---
-# Use stat to check for the binary's existence in the expected install location
-- name: Check if uv is installed
-  ansible.builtin.command: uv --version
-  register: uv_check
-  ignore_errors: true
-  changed_when: false
+# Removed the initial command check
 
 - name: Install uv Python package manager using standalone installer
   ansible.builtin.shell: |
     set -o pipefail && curl -LsSf https://astral.sh/uv/install.sh | sh  # noqa command-instead-of-shell
   args:
     executable: /bin/bash
-  when: uv_check.rc != 0
+    # This task is skipped if the target file already exists
+    creates: "{{ ansible_env.HOME }}/.uv/bin/uv"
   register: uv_install
+  # Consider changed only when the script actually ran (implies creates file didn't exist)
   changed_when: uv_install.rc == 0
 
+# Stat check needed for the update task's condition
+- name: Check uv binary path for update
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.uv/bin/uv"
+  register: uv_binary_stat
+
 - name: Update uv if it is already installed
-  ansible.builtin.command: uv self update
-  when: uv_check.rc == 0
+  # Use the full path identified by stat/expected location
+  ansible.builtin.command: "{{ ansible_env.HOME }}/.uv/bin/uv self update"
+  # Run only if the stat check shows the file exists
+  when: uv_binary_stat.stat.exists
   register: uv_update
   changed_when: "'Updated uv to' in uv_update.stdout"
   tags:
