@@ -1,6 +1,9 @@
 ---
 - name: Check if uv is installed
   ansible.builtin.command: uv --version
+  # Tell the command where to find uv if installed by the script
+  environment:
+    PATH: "/root/.uv/bin:{{ ansible_env.PATH }}"
   register: uv_check
   ignore_errors: true
   changed_when: false
