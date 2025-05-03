@@ -9,16 +9,57 @@
     set -o pipefail && curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh
   args:
     executable: /bin/bash
+    creates: "{{ lookup('env', 'HOME') }}/.oh-my-zsh"
   when: not oh_my_zsh_check.stat.exists
   register: oh_my_zsh_installed
   changed_when: not oh_my_zsh_check.stat.exists
+
+- name: Install Powerlevel10k theme for Oh My Zsh
+  ansible.builtin.git:
+    repo: 'https://github.com/romkatv/powerlevel10k.git'
+    dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/custom/themes/powerlevel10k"
+    depth: 1
+    version: master
+  when: oh_my_zsh_check.stat.exists or oh_my_zsh_installed.changed # Ensure Oh My Zsh exists
+  register: p10k_cloned
+  changed_when: p10k_cloned.changed
+
+- name: Install zsh-completions plugin
+  ansible.builtin.git:
+    repo: 'https://github.com/zsh-users/zsh-completions.git'
+    dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/custom/plugins/zsh-completions"
+    depth: 1
+    version: master
+  when: oh_my_zsh_check.stat.exists or oh_my_zsh_installed.changed
+  register: zsh_completions_cloned
+  changed_when: zsh_completions_cloned.changed
+
+- name: Install zsh-autosuggestions plugin
+  ansible.builtin.git:
+    repo: 'https://github.com/zsh-users/zsh-autosuggestions.git'
+    dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    depth: 1
+    version: master
+  when: oh_my_zsh_check.stat.exists or oh_my_zsh_installed.changed
+  register: zsh_autosuggestions_cloned
+  changed_when: zsh_autosuggestions_cloned.changed
+
+- name: Install zsh-syntax-highlighting plugin
+  ansible.builtin.git:
+    repo: 'https://github.com/zsh-users/zsh-syntax-highlighting.git'
+    dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    depth: 1
+    version: master
+  when: oh_my_zsh_check.stat.exists or oh_my_zsh_installed.changed
+  register: zsh_syntax_highlighting_cloned
+  changed_when: zsh_syntax_highlighting_cloned.changed
 
 - name: Remove existing .zshrc file if it is not a symlink
   ansible.builtin.file:
     path: "{{ lookup('env', 'HOME') }}/.zshrc"
     state: absent
-  become: false # Ensure we operate as the user
-  # Removed condition - always ensure .zshrc is absent before stowing
+  become: false
+  # Always ensure .zshrc is absent before stowing
 
 - name: Check state of .zshrc before stowing
   ansible.builtin.stat:
@@ -28,13 +69,12 @@
 - name: Deploy ZSH configuration using GNU Stow
   ansible.builtin.command:
     cmd: stow -t "{{ lookup('env', 'HOME') }}" -d "{{ dotfiles_dir }}/config" zsh
-    # Removed chdir, using explicit -d for stow directory
-  register: stow_zsh_result # Renamed register variable
-  # Changed when the link didn't exist or was incorrect before running stow
+  register: stow_zsh_result
   changed_when: >
     not zshrc_link_status.stat.exists or
     not zshrc_link_status.stat.islnk or
     zshrc_link_status.stat.lnk_source != dotfiles_dir + '/config/zsh/.zshrc'
+  notify: Reload zsh config
 
 - name: Set ZSH as default shell
   become: true

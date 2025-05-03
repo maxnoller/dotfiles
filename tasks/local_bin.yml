@@ -1,0 +1,14 @@
+---
+- name: Ensure $HOME/.local/bin directory exists
+  ansible.builtin.file:
+    path: "{{ lookup('env', 'HOME') }}/.local/bin"
+    state: directory
+    mode: '0755'
+
+- name: Ensure update-setup script is symlinked into $HOME/.local/bin
+  ansible.builtin.file:
+    src: "{{ playbook_dir }}/scripts/update-setup"
+    dest: "{{ lookup('env', 'HOME') }}/.local/bin/update-setup"
+    state: link
+    force: true # Recreate link if it points elsewhere or is a file
+    mode: '0755' 

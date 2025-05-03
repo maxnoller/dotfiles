@@ -33,7 +33,9 @@ if ! command_exists ansible; then
 fi
 
 # Add local bin to PATH temporarily if it's not there
-export PATH="$HOME/.local/bin:$PATH"
+if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
 
 # Run the playbook
 echo -e "${BLUE}Running Ansible playbook...${NC}"

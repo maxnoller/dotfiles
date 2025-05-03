@@ -2,10 +2,11 @@
 - name: Setup Development Environment
   hosts: localhost
   connection: local
-  gather_facts: true
-  gather_subset: ['!all', 'min']
+  gather_facts: false
   vars:
     dotfiles_dir: "{{ playbook_dir }}"
+    nvm_version: "0.40.1"
+    node_version: "23"
     required_packages:
       - git
       - zsh
@@ -13,21 +14,26 @@
       - curl
       - neovim
 
+  handlers:
+    - name: Reload zsh config
+      ansible.builtin.include_tasks: handlers/main.yml
+
   pre_tasks:
     - name: Update apt cache and upgrade all packages
-      become: yes
+      become: true
       ansible.builtin.apt:
-        update_cache: yes
+        update_cache: true
         cache_valid_time: 3600
         upgrade: dist
+      tags: [system_setup]
 
     - name: Install all required system packages
       become: true
       ansible.builtin.apt:
         name: "{{ required_packages }}"
         state: present
-        update_cache: yes
       when: required_packages | length > 0
+      tags: [system_setup]
 
   tasks:
     - name: Run Git setup tasks
@@ -57,6 +63,10 @@
     - name: Run GitHub setup tasks
       ansible.builtin.include_tasks: tasks/github.yml
       tags: [github, tools]
+
+    - name: Setup local bin directory and scripts
+      ansible.builtin.include_tasks: tasks/local_bin.yml
+      tags: [local_bin, tools]
 
     - name: Display completion status
       ansible.builtin.debug:

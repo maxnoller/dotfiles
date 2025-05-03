@@ -18,7 +18,7 @@
   ansible.builtin.command: uv self update
   when: uv_check.rc == 0
   register: uv_update
-  changed_when: uv_update.rc == 0
+  changed_when: "'Updated uv to' in uv_update.stdout"
   tags:
     - python
     - uv

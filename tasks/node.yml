@@ -6,54 +6,60 @@
 
 - name: Install nvm (Node Version Manager)
   ansible.builtin.shell: |
-    set -o pipefail && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    set -o pipefail && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{ nvm_version | default('0.39.7') }}/install.sh | bash
   args:
     executable: /bin/bash
-  when: not nvm_check.stat.exists
+    creates: "{{ lookup('env', 'HOME') }}/.nvm/nvm.sh"
   register: nvm_installed
   changed_when: not nvm_check.stat.exists
 
-- name: Check if Node.js 23 is installed
-  ansible.builtin.shell: ". $HOME/.nvm/nvm.sh && nvm list 23"
+- name: Check if specific Node.js version is installed
+  ansible.builtin.shell: ". $HOME/.nvm/nvm.sh && nvm list {{ node_version | default('lts/*') }}"
   register: node_check
   ignore_errors: true
   changed_when: false
 
-- name: Install Node.js 23 using NVM
-  ansible.builtin.shell: ". $HOME/.nvm/nvm.sh && nvm install 23"
+- name: Install specific Node.js version using NVM
+  ansible.builtin.shell: ". $HOME/.nvm/nvm.sh && nvm install {{ node_version | default('lts/*') }}"
   args:
     executable: /bin/bash
-  when: node_check.rc != 0
+  when: node_check is defined and node_check.rc is defined and node_check.rc != 0
   register: node_installed
-  changed_when: node_check.rc != 0
+  changed_when: node_check is defined and node_check.rc is defined and node_check.rc != 0
 
 - name: Verify Node.js installation
   ansible.builtin.shell: ". $HOME/.nvm/nvm.sh && node -v"
   args:
     executable: /bin/bash
-  register: node_version
+  register: node_version_output
   changed_when: false
 
 - name: Verify npm installation
   ansible.builtin.shell: ". $HOME/.nvm/nvm.sh && npm -v"
   args:
     executable: /bin/bash
-  register: npm_version
+  register: npm_version_output
   changed_when: false
 
 - name: Display installed Node.js and NPM versions
   ansible.builtin.debug:
     msg: |
-      Node.js Version: {{ node_version.stdout }}
-      NPM Version: {{ npm_version.stdout }}
+      Node.js Version: {{ node_version_output.stdout }}
+      NPM Version: {{ npm_version_output.stdout }}
   tags:
     - node
     - tools
 
+- name: Check if .zshrc already contains NVM configuration
+  ansible.builtin.command: grep -q "NVM MANAGED BLOCK" "{{ lookup('env', 'HOME') }}/.zshrc"
+  register: zshrc_nvm_check
+  ignore_errors: true
+  changed_when: false
+
 - name: Ensure .zshrc sources NVM
   ansible.builtin.blockinfile:
     path: "{{ lookup('env', 'HOME') }}/.zshrc"
-    create: yes # Create the file if it doesn't exist
+    create: true
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
     mode: "0644"
@@ -62,4 +68,4 @@
       export NVM_DIR="$HOME/.nvm"
       [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
       [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-  when: nvm_check.stat.exists or nvm_installed.changed # Only run if NVM is installed or was just installed
+  when: (nvm_check.stat.exists or nvm_installed.changed) and zshrc_nvm_check.rc != 0

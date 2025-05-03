@@ -7,22 +7,18 @@
     force: yes
     update: yes
 
+- name: Check state of .tmux.conf before stowing
+  ansible.builtin.stat:
+    path: "{{ lookup('env', 'HOME') }}/.tmux.conf"
+  register: tmux_conf_link_status
+
 - name: Deploy tmux configuration using GNU Stow
   ansible.builtin.command:
     cmd: stow -t "{{ lookup('env', 'HOME') }}" tmux
     chdir: "{{ dotfiles_dir }}/config"
   register: stow_tmux
-  # NOTE: changed_when relies on stow's stdout. A more robust check
-  # could involve using stat on a key symlink (e.g., ~/.tmux.conf).
-  changed_when: "'LINK:' in stow_tmux.stdout"
-
-- name: Reload tmux configuration if tmux is running
-  ansible.builtin.shell: |
-    if pgrep tmux > /dev/null; then
-      tmux source-file {{ lookup('env', 'HOME') }}/.tmux.conf
-    fi
-  args:
-    executable: /bin/bash
-  register: tmux_running
-  changed_when: false
-  failed_when: false
+  changed_when: >
+    not tmux_conf_link_status.stat.exists or
+    not tmux_conf_link_status.stat.islnk or
+    tmux_conf_link_status.stat.lnk_source != dotfiles_dir + '/config/tmux/.tmux.conf'
+  notify: Reload tmux config
