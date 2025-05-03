@@ -51,7 +51,7 @@
     - tools
 
 - name: Check if .zshrc already contains NVM configuration
-  ansible.builtin.command: grep -q "NVM MANAGED BLOCK" "{{ lookup('env', 'HOME') }}/.zshrc"
+  ansible.builtin.command: grep -q "NVM MANAGED BLOCK" "{{ dotfiles_dir }}/config/zsh/.zshrc"
   register: zshrc_nvm_check
   ignore_errors: true
   changed_when: false
