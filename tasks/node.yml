@@ -56,7 +56,7 @@
   ignore_errors: true
   changed_when: false
 
-- name: Ensure .zshrc sources NVM
+- name: Ensure .zshrc sources NVM # noqa risky-file-permissions
   ansible.builtin.blockinfile:
     path: "{{ dotfiles_dir }}/config/zsh/.zshrc"
     create: true
