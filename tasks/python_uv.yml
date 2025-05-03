@@ -9,5 +9,25 @@
     # This task is skipped if the target file already exists
     creates: "{{ ansible_env.HOME }}/.uv/bin/uv"
   register: uv_install
-  # Consider changed only when the script actually ran (implies creates file didn't exist)
-  changed_when: uv_install.rc == 0
+  # Only report changed if the command was actually executed (i.e., creates file didn't exist) and succeeded
+  changed_when: uv_install.cmd is defined and uv_install.rc == 0
+
+# Stat check needed for the update task's condition
+# - name: Check uv binary path for update
+#   ansible.builtin.stat:
+#     path: "{{ ansible_env.HOME }}/.uv/bin/uv"
+#   register: uv_binary_stat
+
+# - name: Update uv if it is already installed
+#   # Use the full path identified by stat/expected location
+#   ansible.builtin.command: "{{ ansible_env.HOME }}/.uv/bin/uv self update"
+#   # Run only if the stat check shows the file exists
+#   when: uv_binary_stat.stat.exists
+#   register: uv_update
+#   # Ignore errors as this command fails for non-script installs
+#   ignore_errors: true
+#   # Only report changed if the output indicates an update happened.
+#   changed_when: "'Updated uv to' in uv_update.stdout"
+#   tags:
+#     - python
+#     - uv
