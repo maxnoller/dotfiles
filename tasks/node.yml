@@ -6,23 +6,18 @@
 
 - name: Install nvm (Node Version Manager)
   ansible.builtin.shell: |
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    set -o pipefail && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
   args:
     executable: /bin/bash
   when: not nvm_check.stat.exists
   register: nvm_installed
   changed_when: not nvm_check.stat.exists
-
-- name: Ensure NVM is sourced in the current shell
-  ansible.builtin.shell: 'source $HOME/.nvm/nvm.sh && echo "nvm loaded"'
-  args:
-    executable: /bin/bash
-  when: nvm_installed.changed
+  notify: Source NVM
 
 - name: Check if Node.js 23 is installed
   ansible.builtin.shell: ". $HOME/.nvm/nvm.sh && nvm list 23"
   register: node_check
-  ignore_errors: yes
+  ignore_errors: true
   changed_when: false
 
 - name: Install Node.js 23 using NVM
@@ -52,3 +47,6 @@
     msg: |
       Node.js Version: {{ node_version.stdout }}
       NPM Version: {{ npm_version.stdout }}
+  tags:
+    - node
+    - tools

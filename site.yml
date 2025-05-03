@@ -5,26 +5,13 @@
   gather_facts: false
   vars:
     dotfiles_dir: "{{ lookup('env', 'HOME') }}/dotfiles/config"
+    required_packages: []
 
   pre_tasks:
-    - name: Collect all required system packages
-      set_fact:
-        system_packages:
-          - git
-          - stow
-          - curl
-          - ripgrep
-          - fzf
-          - luarocks
-          - tree-sitter-cli
-          - build-essential
-          - tmux
-          - xclip
-          - python3
-          - python3-venv
-          - python3-pip
-          - zsh
-          - gh
+    - name: Collect required system packages
+      ansible.builtin.set_fact:
+        required_packages: "{{ required_packages | union(lookup('file', item).splitlines()) }}"
+      loop: "{{ role_files }}"
 
     - name: Update apt cache and upgrade all packages
       become: yes
@@ -34,23 +21,29 @@
         upgrade: dist
 
     - name: Install all system packages at once
-      become: yes
+      become: true
       ansible.builtin.apt:
-        name: "{{ system_packages }}"
-        state: latest
+        name: "{{ required_packages }}"
+        state: present
+        update_cache: yes
+      when: required_packages | length > 0
+
+  handlers:
+    - name: Include Handlers
+      ansible.builtin.include_tasks: handlers/main.yml
 
   tasks:
     - name: Run development tools setup
-      include_tasks: "{{ item }}"
-      with_items:
-        - tasks/zsh.yml
-        - tasks/git.yml
-        - tasks/github.yml
-        - tasks/neovim.yml
-        - tasks/python_uv.yml
-        - tasks/tmux.yml
-        - tasks/node.yml
+      ansible.builtin.include_tasks:
+        file: "{{ item }}"
+      loop: "{{ role_files }}"
+      when: not playbook_dir == ansible_env.HOME ~ '/.dotfiles'
+
+    - name: Verify dotfiles location
+      ansible.builtin.debug:
+        msg: "Dotfiles are located correctly at {{ playbook_dir }}"
+      when: playbook_dir == ansible_env.HOME ~ '/.dotfiles'
 
     - name: Display completion status
-      debug:
+      ansible.builtin.debug:
         msg: "All development tools have been installed and configured"

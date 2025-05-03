@@ -1,0 +1,21 @@
+# .ansible-lint configuration
+
+# Exclude specific rules
+skip_list:
+  - "yaml" # Don't report on YAML formatting issues (handled by yamllint)
+  - "no-changed-when" # Allow tasks without changed_when
+  - "command-instead-of-module" # Allow command module usage
+
+# Paths to exclude from linting
+exclude_paths:
+  - .github/
+  - .git/
+
+# Use default rules
+use_default_rules: true
+
+# Be quiet about skipped rules
+quiet: false
+
+# Verbosity level
+verbosity: 1

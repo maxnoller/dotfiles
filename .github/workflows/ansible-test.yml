@@ -1,0 +1,106 @@
+name: Ansible Test
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'site.yml'
+      - 'tasks/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'site.yml'
+      - 'tasks/**'
+
+jobs:
+  molecule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies with uv pip
+        run: |
+          uv pip install --system ansible ansible-core molecule molecule-plugins[docker] docker pytest pytest-testinfra
+
+      - name: Setup Molecule
+        run: |
+          mkdir -p molecule/default
+          cat > molecule/default/molecule.yml << EOF
+          ---
+          dependency:
+            name: galaxy
+          driver:
+            name: docker
+          platforms:
+            - name: instance
+              image: geerlingguy/docker-ubuntu2204-ansible:latest
+              pre_build_image: true
+              privileged: true
+              command: ""
+              volumes:
+                - /sys/fs/cgroup:/sys/fs/cgroup:rw
+              cgroupns_mode: host
+          provisioner:
+            name: ansible
+            env:
+              ANSIBLE_FORCE_COLOR: "true"
+          verifier:
+            name: testinfra
+          EOF
+          
+          cat > molecule/default/converge.yml << EOF
+          ---
+          - name: Converge
+            hosts: all
+            tasks:
+              - name: Include main playbook
+                ansible.builtin.include_tasks: ../../site.yml
+          EOF
+          
+          cat > molecule/default/verify.yml << EOF
+          ---
+          - name: Verify
+            hosts: all
+            gather_facts: false
+            tasks:
+              - name: Check if required packages are installed
+                ansible.builtin.package:
+                  name: "{{ item }}"
+                  state: present
+                check_mode: true
+                register: pkg_check
+                failed_when: pkg_check.changed
+                loop:
+                  - git
+                  - stow
+                  - curl
+                  - zsh
+          EOF
+
+      - name: Run Molecule tests
+        run: |
+          uvx run molecule test
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+
+      - name: Check Ansible playbook syntax
+        run: |
+          uvx run ansible-playbook site.yml --syntax-check
+
+      - name: Run Ansible playbook in check mode
+        run: |
+          uvx run ansible-playbook site.yml --check -v
+        env:
+          ANSIBLE_FORCE_COLOR: '1'
