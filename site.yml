@@ -36,6 +36,7 @@
         update_cache: true
         cache_valid_time: 3600
         upgrade: dist
+      changed_when: false
       tags: [system_setup]
 
     - name: Install all required system packages
