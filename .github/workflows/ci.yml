@@ -22,38 +22,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      # Use setup-uv action for consistency and potential caching
-      - name: Install uv and cache dependencies
-        uses: astral-sh/setup-uv@v1 # Pin to v1 for stability
-        with:
-          # Specify the uv version if needed, otherwise uses latest
-          # version: "0.x.y"
-          enable-cache: true
-          # Even if ansible-lint isn't in requirements, this might cache uv itself
-          cache-dependency-glob: "requirements-dev.txt"
-
-      - name: Install ansible-lint with uv pip
-        run: |
-          uv pip install --system ansible-lint
-
-      - name: Run ansible-lint and output SARIF
-        run: |
-          # Run linting, output to SARIF, and continue even if issues are found
-          # The upload step will handle reporting based on the SARIF content.
-          ansible-lint --force-color -f sarif -o ansible-lint-results.sarif || true
-
-      - name: Upload SARIF results to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          # Path to SARIF file relative to the root of the repository
-          sarif_file: ansible-lint-results.sarif
-          # Optional: category for the alerts (defaults to workflow name)
-          category: ansible-lint
+      # The ansible/ansible-lint action handles Python setup by default
+      # if setup_python: true (default) is used or implied.
+      # No need for separate setup-python or setup-uv steps here.
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@v25.4.0
+        # Optional arguments can be added via `with.args` if needed
+        # Example: 
+        # with:
+        #   args: "-c .config/ansible-lint.yml"
 
   test:
     name: Molecule Test
