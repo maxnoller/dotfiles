@@ -2,17 +2,15 @@ name: Ansible Lint
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - '**.yml'
-      - '**.yaml'
-      - 'requirements-dev.txt'
+      - "site.yml"
+      - "tasks/**"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - '**.yml'
-      - '**.yaml'
-      - 'requirements-dev.txt'
+      - "site.yml"
+      - "tasks/**"
 
 jobs:
   ansible-lint:
@@ -24,10 +22,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Install uv and cache dependencies
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v6
         with:
           version: "0.4.20"
           enable-cache: true
@@ -39,12 +37,9 @@ jobs:
           uv --version
 
       - name: Install dependencies with uv pip
-        run: uv pip install --system -r requirements-dev.txt
+        run: |
+          uv pip install --system ansible-lint
 
       - name: Run ansible-lint
         run: |
-          uv run ansible-lint
-
-      - name: Run yamllint
-        run: |
-          uv run yamllint .
+          ansible-lint

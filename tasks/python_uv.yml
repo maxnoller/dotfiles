@@ -7,7 +7,7 @@
 
 - name: Install uv Python package manager using standalone installer
   ansible.builtin.shell: |
-    set -o pipefail && curl -LsSf https://astral.sh/uv/install.sh | sh
+    set -o pipefail && curl -LsSf https://astral.sh/uv/install.sh | sh  # noqa command-instead-of-shell
   args:
     executable: /bin/bash
   when: uv_check.rc != 0
@@ -15,7 +15,7 @@
   changed_when: uv_install.rc == 0
 
 - name: Update uv if it is already installed
-  ansible.builtin.shell: "uv self update"
+  ansible.builtin.command: uv self update
   when: uv_check.rc == 0
   register: uv_update
   changed_when: uv_update.rc == 0

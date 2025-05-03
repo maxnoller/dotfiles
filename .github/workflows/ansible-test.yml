@@ -2,15 +2,15 @@ name: Ansible Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'site.yml'
-      - 'tasks/**'
+      - "site.yml"
+      - "tasks/**"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'site.yml'
-      - 'tasks/**'
+      - "site.yml"
+      - "tasks/**"
 
 jobs:
   molecule:
@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install uv
         run: |
@@ -31,7 +31,13 @@ jobs:
 
       - name: Install dependencies with uv pip
         run: |
-          uv pip install --system ansible ansible-core molecule molecule-plugins[docker] docker pytest pytest-testinfra
+          uv pip install --system ansible ansible-core molecule molecule-plugins[docker] molecule-docker docker pytest pytest-testinfra
+          uv pip list
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
 
       - name: Setup Molecule
         run: |
@@ -58,7 +64,6 @@ jobs:
           verifier:
             name: testinfra
           EOF
-          
           cat > molecule/default/converge.yml << EOF
           ---
           - name: Converge
@@ -67,7 +72,6 @@ jobs:
               - name: Include main playbook
                 ansible.builtin.include_tasks: ../../site.yml
           EOF
-          
           cat > molecule/default/verify.yml << EOF
           ---
           - name: Verify
@@ -88,19 +92,25 @@ jobs:
                   - zsh
           EOF
 
+      - name: Debug Molecule and Python environment
+        run: |
+          molecule --version
+          molecule driver list || true
+          uv pip list
+
       - name: Run Molecule tests
         run: |
-          uvx run molecule test
+          molecule test
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
 
       - name: Check Ansible playbook syntax
         run: |
-          uvx run ansible-playbook site.yml --syntax-check
+          uvx ansible-playbook site.yml --syntax-check
 
       - name: Run Ansible playbook in check mode
         run: |
-          uvx run ansible-playbook site.yml --check -v
+          uvx ansible-playbook site.yml --check -v
         env:
           ANSIBLE_FORCE_COLOR: '1'
