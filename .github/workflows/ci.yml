@@ -41,9 +41,19 @@ jobs:
         run: |
           uv pip install --system ansible-lint
 
-      - name: Run ansible-lint with GitHub annotations
+      - name: Run ansible-lint and output SARIF
         run: |
-          ansible-lint -f github
+          # Run linting, output to SARIF, and continue even if issues are found
+          # The upload step will handle reporting based on the SARIF content.
+          ansible-lint --force-color -f sarif -o ansible-lint-results.sarif || true
+
+      - name: Upload SARIF results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          # Path to SARIF file relative to the root of the repository
+          sarif_file: ansible-lint-results.sarif
+          # Optional: category for the alerts (defaults to workflow name)
+          category: ansible-lint
 
   test:
     name: Molecule Test
