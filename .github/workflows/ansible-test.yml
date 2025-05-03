@@ -70,7 +70,7 @@ jobs:
             hosts: all
             tasks:
               - name: Include main playbook
-                ansible.builtin.include_tasks: ../../site.yml
+                ansible.builtin.import_playbook: ../../site.yml
           EOF
           cat > molecule/default/verify.yml << EOF
           ---
