@@ -12,7 +12,6 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Plugins
 plugins=(
-    git
     docker
     npm
     node
@@ -74,11 +73,6 @@ alias pip="pip3"
 
 alias :q="exit"
 
-# BEGIN ANSIBLE MANAGED BLOCK NVM
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-# END ANSIBLE MANAGED BLOCK NVM
 #
 # act setup
 if [ -d "$HOME/bin" ] ; then
