@@ -1,0 +1,10 @@
+!.github/*
+!.gitignore
+!*.tmux.conf
+!*.vimrc
+!*.zshrc
+!*.bashrc
+!*.bash_profile
+!*.zshrc
+!*.bashrc
+!*.bash_profile
