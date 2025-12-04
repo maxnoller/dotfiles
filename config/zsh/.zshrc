@@ -10,78 +10,130 @@ export ZSH="$HOME/.oh-my-zsh"
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-# Plugins
+# Gitstatus/p10k performance: disable expensive untracked scanning in large repos.
+# Must be set BEFORE oh-my-zsh loads the theme (and thus p10k/gitstatus).
+export GITSTATUS_ENABLE_UNTRACKED=0
+
+# Optimized plugins - removed redundant ones and reordered for better loading
 plugins=(
-    docker
-    npm
-    node
-    python
-    pip
-    tmux
-    nvm
-    ubuntu
-    uv
-    gitignore
-    zsh-autosuggestions
-    zsh-syntax-highlighting
+    git                     # Core git functionality
+    docker                  # Docker completion
+    python                  # Python utilities
+    pip                     # pip completion
+    tmux                    # tmux integration
+    ubuntu                  # Ubuntu-specific commands
+    uv                      # uv package manager
+    gitignore               # gitignore templates
+    zsh-autosuggestions     # Must be before syntax-highlighting
+    zsh-syntax-highlighting # Must be last
 )
 
+# Optimize completion system - single initialization
 # Load zsh-completions before Oh My Zsh
-# Check if the completions plugin directory exists
 ZSH_COMPLETIONS_DIR="${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions"
-if [ -d "$ZSH_COMPLETIONS_DIR" ]; then
+if [[ -d "$ZSH_COMPLETIONS_DIR" ]]; then
   fpath=("$ZSH_COMPLETIONS_DIR/src" $fpath)
-  # Initialize completion system if not already done
-  # Check if compinit is already loaded to avoid double loading
-  if ! command -v compinit >/dev/null 2>&1 || ! declare -f compinit > /dev/null; then
-    autoload -U compinit && compinit
-  fi
 fi
+
+# Performance optimization: skip some expensive git operations
+DISABLE_UNTRACKED_FILES_DIRTY="true"
+DISABLE_AUTO_UPDATE="true"  # Disable automatic updates for faster startup
 
 # Source Oh My Zsh
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-# Add ~/.local/bin to PATH if it exists and is not already included
-if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-    export PATH="$HOME/.local/bin:$PATH"
+# ============================================================================
+# PATH and Environment Setup
+# ============================================================================
+
+# Consolidate PATH modifications
+typeset -U path  # Remove duplicates automatically
+path=(
+    "$HOME/.local/bin"
+    "$HOME/bin"
+    $path
+)
+
+# ============================================================================
+# Completions and Functions
+# ============================================================================
+
+# Initialize completion system once
+autoload -Uz compinit
+# Performance optimization: only rebuild cache if it's older than 24 hours
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+    compinit -d "${ZDOTDIR:-$HOME}/.zcompdump"
+else
+    compinit -C -d "${ZDOTDIR:-$HOME}/.zcompdump"
 fi
-# export PATH=$HOME/.local/bin:$PATH # Old line commented out/removed
 
-# NVM setup
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+# zstyle optimizations
+zstyle ':completion:*' menu select
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$HOME/.zsh/cache"
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'  # Case insensitive completion
 
-# UV run autocomplete while issues not fixed
-_uv_run_mod() {
-    if [[ "$words[2]" == "run" && "$words[CURRENT]" != -* ]]; then
-        _arguments '*:filename:_files'
-    else
-        _uv "$@"
-    fi
-}
-compdef _uv_run_mod uv
+# UV completion fix - only if uv is available
+if command -v uv &> /dev/null; then
+    _uv_run_mod() {
+        if [[ "$words[2]" == "run" && "$words[CURRENT]" != -* ]]; then
+            _arguments '*:filename:_files'
+        else
+            _uv "$@"
+        fi
+    }
+    compdef _uv_run_mod uv
+fi
 
+# ============================================================================
 # Aliases
+# ============================================================================
+
+# Editor aliases
 alias vim="nvim"
 alias vi="nvim"
 alias v="nvim"
 
+# Python aliases
 alias python="python3"
 alias pip="pip3"
 
+# Convenience aliases
 alias :q="exit"
+alias ll="ls -la"
+alias la="ls -la"
+alias l="ls -l"
 
-#
-# act setup
-if [ -d "$HOME/bin" ] ; then
-  PATH="$PATH:$HOME/bin"
-fi
+# ============================================================================
+# Final Setup
+# ============================================================================
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+# Load p10k config
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-fpath+=~/.zfunc; autoload -Uz compinit; compinit
+# Load any custom completions
+if [[ -d ~/.zfunc ]]; then
+    fpath=(~/.zfunc $fpath)
+fi
+fpath=(~/.zsh/completions $fpath)
 
-zstyle ':completion:*' menu select
+
+# pnpm
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+# Moon task runner - Added by Claude Code
+export PATH="$HOME/.moon/bin:$PATH"
+
+# Moon shell completions
+if command -v moon &> /dev/null; then
+  eval "$(moon completions --shell zsh)"
+fi
+
+# proto
+export PROTO_HOME="$HOME/.proto";
+export PATH="$PROTO_HOME/shims:$PROTO_HOME/bin:$PATH";
