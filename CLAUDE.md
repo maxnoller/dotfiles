@@ -1,85 +1,147 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with code in this repository.
 
 ## Overview
 
-This is an Ansible dotfiles repository that sets up a comprehensive development environment. The main playbook (`site.yml`) orchestrates the installation and configuration of development tools including Git, Zsh, tmux, Node.js, Python UV, Neovim, and GitHub CLI.
+This is a **Python-based dotfiles** repository that sets up a development environment. It uses:
+
+- **Python CLI** (`dotfiles`) - Built with Typer, Pydantic, and Rich
+- **uv** - Python package manager and runner
+- **Proto** - Multi-language version manager (manages Node.js)
+- **GNU Stow** - Symlink-based configuration management
 
 ## Primary Commands
 
-### Running the Playbook
+### Running the CLI
+
 ```bash
-# Full setup (requires sudo password)
-ansible-playbook site.yml --ask-become-pass
+# Install everything
+uv run dotfiles install
 
-# Quick setup script (handles dependencies)
-./setup.sh
+# Dry-run (preview without changes)
+uv run dotfiles install --dry-run
 
-# Run specific tool configurations
-ansible-playbook site.yml --ask-become-pass --tags neovim
-ansible-playbook site.yml --ask-become-pass --tags tools
+# Update/sync configurations
+uv run dotfiles sync
+
+# Check installation status
+uv run dotfiles status
+
+# Uninstall
+uv run dotfiles uninstall
+uv run dotfiles uninstall --remove-tools  # Also remove oh-my-zsh, proto, etc.
 ```
 
-### Development and Testing
+### Bootstrap (Fresh System)
+
 ```bash
-# Linting (used in CI)
-ansible-lint
+# Run setup script (installs uv if needed, then runs dotfiles install)
+./setup.sh
+```
 
-# Run Molecule tests (CI only - requires Docker)
-molecule test
+### Development
 
-# Update local setup
-~/.local/bin/update-setup  # (symlinked from scripts/update-setup)
+```bash
+# Install dev dependencies
+uv sync --group dev
+
+# Run linters
+uv run ruff check src/
+uv run ruff format src/
+
+# Type checking
+uv run basedpyright src/
+
+# Run tests
+uv run pytest
+
+# Run specific test
+uv run pytest tests/test_cli.py -v
 ```
 
 ## Architecture
 
-### Core Structure
-- **`site.yml`** - Main playbook that orchestrates all tasks
-- **`tasks/`** - Individual task files for each tool/component
-- **`config/`** - Configuration files deployed via GNU Stow
-- **`handlers/`** - Ansible handlers for service reloading
-- **`scripts/`** - Utility scripts symlinked to `~/.local/bin`
+### Project Structure
 
-### Task Organization
-The repository uses a modular approach with separate task files:
-- **`git.yml`** - Git configuration with work/personal profiles
-- **`zsh.yml`** - Oh My Zsh with plugins and themes
-- **`tmux.yml`** - Tmux with TPM plugin manager
-- **`node.yml`** - NVM and Node.js setup
-- **`python_uv.yml`** - UV Python package manager
-- **`neovim.yml`** - Neovim with PPA and configuration
-- **`github.yml`** - GitHub CLI and extensions
-- **`local_bin.yml`** - Local binary management
+```
+~/dotfiles/
+├── src/dotfiles/           # Python CLI package
+│   ├── __init__.py
+│   ├── cli.py              # Typer CLI commands
+│   ├── config.py           # Pydantic Settings configuration
+│   ├── console.py          # Rich console output
+│   ├── runner.py           # Subprocess runner with sudo caching
+│   └── tasks/              # Installation task modules
+│       ├── apt.py          # APT package installation
+│       ├── shell.py        # Oh My Zsh, plugins
+│       ├── tools.py        # Proto, UV, TPM
+│       ├── node.py         # Node.js via proto
+│       ├── git.py          # Git configuration
+│       ├── stow.py         # Stow config deployment
+│       └── github.py       # GitHub CLI extensions
+├── config/                 # Stow-managed configuration files
+│   ├── nvim/               # Neovim configuration
+│   ├── tmux/               # Tmux configuration
+│   └── zsh/                # Zsh configuration (.zshrc, .p10k.zsh)
+├── scripts/                # Utility scripts
+├── tests/                  # Pytest tests
+├── pyproject.toml          # Project configuration
+├── .prototools             # Proto version pins (node = "23")
+└── setup.sh                # Bootstrap script
+```
 
 ### Configuration Management
-Uses **GNU Stow** for symlink-based configuration management. Config files are stored in `config/` subdirectories and deployed to appropriate locations:
+
+Uses **GNU Stow** for symlink-based configuration. Configs in `config/` are deployed to home:
+
 - `config/nvim/` → `~/.config/nvim`
 - `config/tmux/` → `~/.tmux.conf`
-- `config/zsh/` → `~/.zshrc`
+- `config/zsh/` → `~/.zshrc`, `~/.p10k.zsh`
 
-## Key Variables
-- `dotfiles_dir` - Path to the dotfiles repository
-- `nvm_version` - NVM version (default: "0.40.1")
-- `node_version` - Node.js version (default: "23")
-- `required_packages` - System packages to install
+### Environment Variables
+
+Git configuration can be set via environment variables (or prompted interactively):
+
+```bash
+export DOTFILES_GIT_NAME="Your Name"
+export DOTFILES_GIT_EMAIL="your@email.com"
+export DOTFILES_GIT_WORK_EMAIL="work@company.com"
+export DOTFILES_GIT_WORK_REMOTE_PATTERN="gitlab.company.com*/**"
+```
+
+Other configuration:
+
+```bash
+export DOTFILES_NODE_VERSION="20"  # Override default Node.js version
+```
+
+## Key Technologies
+
+| Tool | Purpose |
+|------|---------|
+| **Typer** | CLI framework with automatic help generation |
+| **Pydantic Settings** | Configuration with environment variable support |
+| **Rich** | Terminal output formatting |
+| **Proto** | Node.js version management (replaces NVM) |
+| **GNU Stow** | Symlink farm manager for configs |
 
 ## Important Patterns
-- Tasks use idempotent operations with `creates`, `changed_when`, and `when` conditions
-- Error handling with `ignore_errors: true` and `failed_when: false` for graceful degradation
-- Shell integration primarily targets Zsh (`.zshrc` modifications)
-- Repository cloning uses `force: false` to avoid overwriting existing installations
-- Configuration deployment uses `stow` command with change detection
 
-## CI/CD
-- GitHub Actions workflow in `.github/workflows/ci.yml`
-- Runs `ansible-lint` and `molecule test` on changes to playbooks
-- Molecule tests use Docker containers for isolated testing
-- Only tests critical paths (currently `python_uv.yml` task)
+- All tasks are **idempotent** - safe to run multiple times
+- Tasks check existence before installing (skip if already present)
+- **Dry-run mode** (`--dry-run`) previews all changes
+- **Error handling** with `RunnerError` exception and proper exit codes
+- Git configuration is **prompted interactively** (not hardcoded)
+- Uses `subprocess` with list arguments to avoid shell injection
 
-## Development Environment Requirements
-- **Python 3** and **pip** (handled by `setup.sh`)
-- **Ansible** (installed via pip if missing)
-- **sudo access** (for package installation and shell changes)
-- **GNU Stow** (installed as system package)
+## What Gets Installed
+
+1. **APT packages**: git, zsh, stow, curl, neovim, gh
+2. **Oh My Zsh** with Powerlevel10k theme and plugins
+3. **Proto** toolchain manager
+4. **UV** Python package manager
+5. **Node.js** via proto
+6. **TPM** (Tmux Plugin Manager)
+7. **Stowed configs**: zsh, tmux, nvim
+8. **GitHub CLI extensions**: gh-act
