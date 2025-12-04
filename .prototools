@@ -1,0 +1,4 @@
+# Proto toolchain configuration
+# Pins tool versions for this project
+
+node = "23"
