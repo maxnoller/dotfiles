@@ -1,7 +1,6 @@
 #!/bin/bash
-# Script to update the development environment using the dotfiles Ansible playbook
+# Script to sync the development environment using dotfiles CLI
 
-# Assuming dotfiles are cloned/located at $HOME/dotfiles
 DOTFILES_DIR="$HOME/dotfiles"
 
 # Check if the dotfiles directory exists
@@ -10,12 +9,9 @@ if [ ! -d "$DOTFILES_DIR" ]; then
     exit 1
 fi
 
-# Navigate to the dotfiles directory
 cd "$DOTFILES_DIR" || exit 1
 
-# Run the Ansible playbook
-# Use the --ask-become-pass flag to prompt for the sudo password if needed
-echo "Updating setup using Ansible..."
-ansible-playbook site.yml --ask-become-pass
+echo "Syncing dotfiles..."
+uv run dotfiles sync
 
-echo "Setup update complete." 
+echo "Sync complete."

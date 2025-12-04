@@ -1,4 +1,7 @@
 #!/bin/bash
+# Bootstrap script - installs uv and runs dotfiles CLI
+
+set -e
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -6,113 +9,29 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Default options
-SKIP_APT=false
-CONFIG_ONLY=false
-ANSIBLE_ARGS=""
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Function to check if a command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
+echo -e "${BLUE}=== Dotfiles Bootstrap ===${NC}"
 
-# Function to show usage
-show_usage() {
-    echo "Usage: $0 [OPTIONS]"
-    echo ""
-    echo "Options:"
-    echo "  --skip-apt        Skip apt update/install operations"
-    echo "  --config-only     Only update configurations (skip package installs)"
-    echo "  --tags TAGS       Pass specific tags to ansible-playbook"
-    echo "  --help            Show this help message"
-    echo ""
-    echo "Examples:"
-    echo "  $0                    # Full setup"
-    echo "  $0 --skip-apt         # Setup without apt operations"
-    echo "  $0 --config-only      # Only update configs"
-    echo "  $0 --tags neovim      # Only run neovim tasks"
-}
+# Check if uv is installed
+if ! command -v uv &> /dev/null; then
+    echo -e "${YELLOW}uv not found. Installing...${NC}"
+    curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Parse command line arguments
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --skip-apt)
-            SKIP_APT=true
-            shift
-            ;;
-        --config-only)
-            CONFIG_ONLY=true
-            SKIP_APT=true
-            ANSIBLE_ARGS="--skip-tags packages"
-            shift
-            ;;
-        --tags)
-            ANSIBLE_ARGS="--tags $2"
-            shift 2
-            ;;
-        --help)
-            show_usage
-            exit 0
-            ;;
-        *)
-            echo "Unknown option: $1"
-            show_usage
-            exit 1
-            ;;
-    esac
-done
-
-if [ "$CONFIG_ONLY" = true ]; then
-    echo -e "${BLUE}Updating configurations only...${NC}"
-else
-    echo -e "${BLUE}Installing dotfiles...${NC}"
-fi
-
-# Check dependencies (skip apt operations if requested)
-if [ "$SKIP_APT" = false ]; then
-    # Check if Python3 is installed
-    if ! command_exists python3; then
-        echo "Python3 is required but not installed. Installing..."
-        sudo apt update
-        sudo apt install -y python3
-    fi
-
-    # Check if pip is installed
-    if ! command_exists pip3; then
-        echo "Pip3 is required but not installed. Installing..."
-        sudo apt update
-        sudo apt install -y python3-pip
-    fi
-else
-    echo -e "${YELLOW}Skipping apt operations...${NC}"
-    # Still check if required tools exist
-    if ! command_exists python3; then
-        echo "Error: Python3 is required but not installed. Run without --skip-apt first."
-        exit 1
-    fi
-    if ! command_exists pip3; then
-        echo "Error: Pip3 is required but not installed. Run without --skip-apt first."
-        exit 1
-    fi
-fi
-
-# Check if Ansible is installed
-if ! command_exists ansible; then
-    echo "Ansible is required but not installed. Installing..."
-    pip3 install --user ansible
-fi
-
-# Add local bin to PATH temporarily if it's not there
-if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    # Add to PATH for this session
     export PATH="$HOME/.local/bin:$PATH"
+
+    if ! command -v uv &> /dev/null; then
+        echo -e "${YELLOW}Please add ~/.local/bin to your PATH and re-run this script${NC}"
+        exit 1
+    fi
 fi
 
-# Run the playbook
-echo -e "${BLUE}Running Ansible playbook...${NC}"
-if [ "$CONFIG_ONLY" = true ]; then
-    ansible-playbook site.yml --ask-become-pass $ANSIBLE_ARGS
-else
-    ansible-playbook site.yml --ask-become-pass $ANSIBLE_ARGS
-fi
+echo -e "${GREEN}uv is available${NC}"
 
-echo -e "${GREEN}Setup complete!${NC}"
+# Change to dotfiles directory
+cd "$DOTFILES_DIR"
+
+# Run the dotfiles CLI
+echo -e "${BLUE}Running dotfiles install...${NC}"
+uv run dotfiles install "$@"
