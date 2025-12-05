@@ -2,7 +2,9 @@
 
 from dotfiles.tasks.claude import (
     install_claude_code,
+    install_custom_skills,
     setup_claude_mcp_servers,
+    setup_claude_settings,
     setup_claude_skills,
     update_claude_code,
 )
@@ -25,6 +27,7 @@ from dotfiles.tasks.tools import install_proto, install_proto_tools, install_tpm
 
 __all__ = [
     "install_claude_code",
+    "install_custom_skills",
     "install_gh_extensions",
     "install_oh_my_zsh",
     "install_proto",
@@ -34,6 +37,7 @@ __all__ = [
     "install_zsh_plugins",
     "set_default_shell",
     "setup_claude_mcp_servers",
+    "setup_claude_settings",
     "setup_claude_skills",
     "setup_directories",
     "setup_git_config",

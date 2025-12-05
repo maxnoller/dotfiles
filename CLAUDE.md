@@ -97,7 +97,6 @@ Uses **GNU Stow** for symlink-based configuration. Configs in `config/` are depl
 - `config/nvim/` → `~/.config/nvim`
 - `config/tmux/` → `~/.tmux.conf`
 - `config/zsh/` → `~/.zshrc`, `~/.p10k.zsh`
-- `config/claude/` → `~/.claude` (Claude Code settings)
 
 ### Environment Variables
 

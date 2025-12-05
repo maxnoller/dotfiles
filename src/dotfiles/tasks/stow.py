@@ -4,7 +4,7 @@ from dotfiles import console
 from dotfiles.config import Config
 from dotfiles.runner import Runner
 
-STOW_PACKAGES = ["zsh", "tmux", "nvim", "claude"]
+STOW_PACKAGES = ["zsh", "tmux", "nvim"]
 
 
 def setup_directories(_runner: Runner, config: Config) -> None:

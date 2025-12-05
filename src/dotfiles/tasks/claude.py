@@ -1,5 +1,8 @@
 """Claude Code installation tasks."""
 
+import json
+import shutil
+
 from dotfiles import console
 from dotfiles.config import Config
 from dotfiles.runner import Runner
@@ -14,6 +17,19 @@ MCP_SERVERS = [
 # Skills marketplace and individual skills to install
 SKILLS_MARKETPLACE = "anthropics/skills"
 SKILLS = ["frontend-design", "webapp-testing"]
+
+# Default settings for new installations
+DEFAULT_SETTINGS = {
+    "includeCoAuthoredBy": False,
+    "permissions": {
+        "allow": [
+            "WebSearch",
+            "WebFetch",
+            "mcp__context7__resolve-library-id",
+            "mcp__context7__get-library-docs",
+        ],
+    },
+}
 
 
 def install_claude_code(runner: Runner, config: Config) -> None:
@@ -180,3 +196,62 @@ def setup_claude_skills(runner: Runner, _config: Config) -> None:
             console.success(f"{skill} installed")
         else:
             console.skip(f"{skill} already installed or failed")
+
+
+def setup_claude_settings(_runner: Runner, config: Config) -> None:
+    """Write default Claude Code settings if none exist."""
+    console.header("Configuring Claude Code settings")
+
+    settings_file = config.home / ".claude" / "settings.json"
+
+    if settings_file.exists():
+        console.skip("Claude Code settings already exist")
+        return
+
+    console.info("Writing default Claude Code settings...")
+
+    if config.dry_run:
+        console.info(f"[DRY-RUN] Would write settings to {settings_file}")
+        console.success("Claude Code settings configured")
+        return
+
+    # Ensure directory exists
+    settings_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write default settings
+    settings_file.write_text(json.dumps(DEFAULT_SETTINGS, indent=2) + "\n")
+    console.success("Claude Code settings configured")
+
+
+def install_custom_skills(_runner: Runner, config: Config) -> None:
+    """Install custom skills from dotfiles repo."""
+    console.header("Installing custom Claude Code skills")
+
+    source_dir = config.dotfiles_dir / "config" / "claude" / ".claude" / "skills"
+    target_dir = config.home / ".claude" / "skills"
+
+    if not source_dir.exists():
+        console.skip("No custom skills found")
+        return
+
+    for skill_dir in source_dir.iterdir():
+        if not skill_dir.is_dir():
+            continue
+
+        skill_name = skill_dir.name
+        target_skill_dir = target_dir / skill_name
+
+        if target_skill_dir.exists():
+            console.skip(f"{skill_name} skill already installed")
+            continue
+
+        console.info(f"Installing custom skill: {skill_name}...")
+
+        if config.dry_run:
+            console.info(f"[DRY-RUN] Would copy {skill_dir} to {target_skill_dir}")
+            console.success(f"{skill_name} installed")
+            continue
+
+        target_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(skill_dir, target_skill_dir)
+        console.success(f"{skill_name} installed")

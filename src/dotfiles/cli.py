@@ -14,6 +14,7 @@ from dotfiles.config import Config
 from dotfiles.runner import Runner, RunnerError
 from dotfiles.tasks import (
     install_claude_code,
+    install_custom_skills,
     install_gh_extensions,
     install_oh_my_zsh,
     install_proto,
@@ -23,6 +24,7 @@ from dotfiles.tasks import (
     install_zsh_plugins,
     set_default_shell,
     setup_claude_mcp_servers,
+    setup_claude_settings,
     setup_claude_skills,
     setup_directories,
     setup_git_config,
@@ -102,8 +104,10 @@ def install(
         install_zsh_plugins(runner, config)
         install_tpm(runner, config)
         install_claude_code(runner, config)
+        setup_claude_settings(runner, config)
         setup_claude_mcp_servers(runner, config)
         setup_claude_skills(runner, config)
+        install_custom_skills(runner, config)
 
         # Phase 3: Configuration
         console.header("--- Phase 3: Configuration ---")
@@ -280,7 +284,6 @@ def status() -> None:
         (".zshrc", (config.home / ".zshrc").is_symlink()),
         (".tmux.conf", (config.home / ".tmux.conf").is_symlink()),
         (".config/nvim", (config.home / ".config/nvim").is_symlink()),
-        (".claude", (config.home / ".claude").is_symlink()),
     ]
 
     for name, installed, info in checks:
