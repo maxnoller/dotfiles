@@ -14,16 +14,11 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Must be set BEFORE oh-my-zsh loads the theme (and thus p10k/gitstatus).
 export GITSTATUS_ENABLE_UNTRACKED=0
 
-# Optimized plugins - removed redundant ones and reordered for better loading
+# Optimized plugins - minimal set for performance
 plugins=(
     git                     # Core git functionality
     docker                  # Docker completion
-    python                  # Python utilities
-    pip                     # pip completion
     tmux                    # tmux integration
-    ubuntu                  # Ubuntu-specific commands
-    uv                      # uv package manager
-    gitignore               # gitignore templates
     zsh-autosuggestions     # Must be before syntax-highlighting
     zsh-syntax-highlighting # Must be last
 )
@@ -35,9 +30,11 @@ if [[ -d "$ZSH_COMPLETIONS_DIR" ]]; then
   fpath=("$ZSH_COMPLETIONS_DIR/src" $fpath)
 fi
 
-# Performance optimization: skip some expensive git operations
-DISABLE_UNTRACKED_FILES_DIRTY="true"
-DISABLE_AUTO_UPDATE="true"  # Disable automatic updates for faster startup
+# Performance optimizations
+DISABLE_UNTRACKED_FILES_DIRTY="true"  # Skip expensive git untracked check
+DISABLE_AUTO_UPDATE="true"            # Disable automatic updates
+DISABLE_MAGIC_FUNCTIONS="true"        # Disable url-quote-magic (slow on paste)
+DISABLE_COMPFIX="true"                # Skip compaudit security check
 
 # Source Oh My Zsh
 source $ZSH/oh-my-zsh.sh
@@ -111,13 +108,6 @@ alias l="ls -l"
 # Load p10k config
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# Load any custom completions
-if [[ -d ~/.zfunc ]]; then
-    fpath=(~/.zfunc $fpath)
-fi
-fpath=(~/.zsh/completions $fpath)
-
-
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
@@ -126,13 +116,8 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# Moon task runner - Added by Claude Code
+# Moon task runner
 export PATH="$HOME/.moon/bin:$PATH"
-
-# Moon shell completions
-if command -v moon &> /dev/null; then
-  eval "$(moon completions --shell zsh)"
-fi
 
 # proto
 export PROTO_HOME="$HOME/.proto";
