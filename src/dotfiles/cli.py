@@ -15,11 +15,10 @@ from dotfiles.runner import Runner, RunnerError
 from dotfiles.tasks import (
     install_apt_packages,
     install_gh_extensions,
-    install_node,
     install_oh_my_zsh,
     install_proto,
+    install_proto_tools,
     install_tpm,
-    install_uv,
     install_zsh_plugins,
     set_default_shell,
     setup_directories,
@@ -94,23 +93,19 @@ def install(
         console.header("--- Phase 2: Tools ---")
         install_oh_my_zsh(runner, config)
         install_proto(runner, config)
-        install_uv(runner, config)
+        install_proto_tools(runner, config)  # node, uv, gh via proto
         install_zsh_plugins(runner, config)
         install_tpm(runner, config)
 
-        # Phase 3: Node.js
-        console.header("--- Phase 3: Node.js ---")
-        install_node(runner, config)
-
-        # Phase 4: Configuration
-        console.header("--- Phase 4: Configuration ---")
+        # Phase 3: Configuration
+        console.header("--- Phase 3: Configuration ---")
         setup_directories(runner, config)
         setup_git_config(runner, config)
         stow_configs(runner, config)
         setup_local_bin(runner, config)
 
-        # Phase 5: Final setup
-        console.header("--- Phase 5: Final Setup ---")
+        # Phase 4: Final setup
+        console.header("--- Phase 4: Final Setup ---")
         set_default_shell(runner, config)
         install_gh_extensions(runner, config)
 

@@ -35,15 +35,16 @@ uv run dotfiles uninstall --remove-tools
 
 ## What Gets Installed
 
-| Component | Description |
-|-----------|-------------|
-| **System Packages** | git, zsh, stow, curl, neovim, gh |
-| **Oh My Zsh** | Zsh framework with plugins (zsh-autosuggestions, zsh-syntax-highlighting) |
-| **Proto** | Multi-language version manager (manages Node.js) |
-| **Node.js** | Via proto (version configured in `.prototools`) |
-| **uv** | Python package manager |
-| **TPM** | Tmux Plugin Manager |
-| **GitHub CLI Extensions** | gh-act |
+| Component | Source | Description |
+|-----------|--------|-------------|
+| **System Packages** | apt | git, zsh, stow, curl, neovim |
+| **Oh My Zsh** | installer | Zsh framework with Powerlevel10k theme |
+| **Proto** | installer | Multi-language version manager |
+| **Node.js** | proto | JavaScript runtime |
+| **uv** | proto | Python package manager |
+| **gh** | proto | GitHub CLI |
+| **TPM** | git | Tmux Plugin Manager |
+| **GitHub CLI Extensions** | gh | gh-act |
 
 ## Configuration
 

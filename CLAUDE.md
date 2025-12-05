@@ -8,7 +8,7 @@ This is a **Python-based dotfiles** repository that sets up a development enviro
 
 - **Python CLI** (`dotfiles`) - Built with Typer, Pydantic, and Rich
 - **uv** - Python package manager and runner
-- **Proto** - Multi-language version manager (manages Node.js)
+- **Proto** - Multi-language version manager (manages Node.js, uv, gh)
 - **GNU Stow** - Symlink-based configuration management
 
 ## Primary Commands
@@ -75,8 +75,7 @@ uv run pytest tests/test_cli.py -v
 │   └── tasks/              # Installation task modules
 │       ├── apt.py          # APT package installation
 │       ├── shell.py        # Oh My Zsh, plugins
-│       ├── tools.py        # Proto, UV, TPM
-│       ├── node.py         # Node.js via proto
+│       ├── tools.py        # Proto, proto tools, TPM
 │       ├── git.py          # Git configuration
 │       ├── stow.py         # Stow config deployment
 │       └── github.py       # GitHub CLI extensions
@@ -87,7 +86,7 @@ uv run pytest tests/test_cli.py -v
 ├── scripts/                # Utility scripts
 ├── tests/                  # Pytest tests
 ├── pyproject.toml          # Project configuration
-├── .prototools             # Proto version pins (node = "23")
+├── .prototools             # Proto version pins and plugin config
 └── setup.sh                # Bootstrap script
 ```
 
@@ -123,7 +122,7 @@ export DOTFILES_NODE_VERSION="20"  # Override default Node.js version
 | **Typer** | CLI framework with automatic help generation |
 | **Pydantic Settings** | Configuration with environment variable support |
 | **Rich** | Terminal output formatting |
-| **Proto** | Node.js version management (replaces NVM) |
+| **Proto** | Version management for Node.js, uv, gh (replaces NVM) |
 | **GNU Stow** | Symlink farm manager for configs |
 
 ## Important Patterns
@@ -137,11 +136,10 @@ export DOTFILES_NODE_VERSION="20"  # Override default Node.js version
 
 ## What Gets Installed
 
-1. **APT packages**: git, zsh, stow, curl, neovim, gh
+1. **APT packages**: git, zsh, stow, curl, neovim
 2. **Oh My Zsh** with Powerlevel10k theme and plugins
 3. **Proto** toolchain manager
-4. **UV** Python package manager
-5. **Node.js** via proto
-6. **TPM** (Tmux Plugin Manager)
-7. **Stowed configs**: zsh, tmux, nvim
-8. **GitHub CLI extensions**: gh-act
+4. **Proto-managed tools**: Node.js, uv, gh (configured in `.prototools`)
+5. **TPM** (Tmux Plugin Manager)
+6. **Stowed configs**: zsh, tmux, nvim
+7. **GitHub CLI extensions**: gh-act

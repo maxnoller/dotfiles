@@ -1,8 +1,11 @@
-"""Tool installation tasks - proto, uv, TPM."""
+"""Tool installation tasks - proto, uv, gh, TPM."""
 
 from dotfiles import console
 from dotfiles.config import Config
 from dotfiles.runner import Runner
+
+# Tools to install via proto (defined in .prototools)
+PROTO_TOOLS = ["node", "uv", "gh"]
 
 
 def install_proto(runner: Runner, config: Config) -> None:
@@ -22,21 +25,27 @@ def install_proto(runner: Runner, config: Config) -> None:
     console.success("Proto installed")
 
 
-def install_uv(runner: Runner, config: Config) -> None:
-    """Install uv Python package manager."""
-    console.header("Installing uv")
+def install_proto_tools(runner: Runner, config: Config) -> None:
+    """Install tools managed by proto (node, uv, gh)."""
+    console.header("Installing proto-managed tools")
 
-    # Check both possible locations
-    uv_local = config.local_bin / "uv"
-    uv_cargo = config.home / ".cargo" / "bin" / "uv"
+    proto_bin = config.proto_home / "bin" / "proto"
 
-    if uv_local.exists() or uv_cargo.exists() or runner.command_exists("uv"):
-        console.skip("uv already installed")
+    if not proto_bin.exists():
+        console.error("Proto not installed, skipping tools")
         return
 
-    console.info("Installing uv...")
-    runner.run_shell("curl -LsSf https://astral.sh/uv/install.sh | sh")
-    console.success("uv installed")
+    for tool in PROTO_TOOLS:
+        console.info(f"Installing {tool} via proto...")
+        # proto install reads version from .prototools
+        result = runner.run(
+            [str(proto_bin), "install", tool],
+            check=False,
+        )
+        if result.returncode == 0:
+            console.success(f"{tool} installed")
+        else:
+            console.warning(f"Failed to install {tool}")
 
 
 def install_tpm(runner: Runner, config: Config) -> None:

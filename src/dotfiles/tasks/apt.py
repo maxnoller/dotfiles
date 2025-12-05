@@ -6,7 +6,8 @@ from dotfiles import console
 from dotfiles.config import Config
 from dotfiles.runner import Runner
 
-PACKAGES = ["git", "zsh", "stow", "curl", "neovim", "gh"]
+# gh is now installed via proto
+PACKAGES = ["git", "zsh", "stow", "curl", "neovim"]
 
 
 def install_apt_packages(runner: Runner, _config: Config) -> None:

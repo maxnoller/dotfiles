@@ -2,3 +2,7 @@
 # Pins tool versions for this project
 
 node = "23"
+uv = "latest"
+
+[plugins.tools]
+gh = "https://raw.githubusercontent.com/appthrust/proto-toml-plugins/main/gh/plugin.toml"
