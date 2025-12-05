@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
+
+      - name: Check formatting
+        run: uv run ruff format --check src/ tests/
+
+      - name: Run linter
+        run: uv run ruff check src/ tests/
+
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
+
+      - name: Run type checker
+        run: uv run basedpyright src/
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
+
+      - name: Override Python version
+        run: echo "python = \"${{ matrix.python-version }}\"" >> .prototools
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Run tests
+        run: uv run pytest --cov=dotfiles --cov-report=xml --cov-report=term
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        if: matrix.python-version == '3.12'
+        with:
+          files: coverage.xml
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  install-test:
+    name: Install Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
+
+      - name: Test CLI installation
+        run: |
+          uv tool install . --force
+          dotfiles --help
+          dotfiles status
+
+      - name: Test dry-run install
+        run: dotfiles install --dry-run
+
+  ci-status:
+    name: CI Status
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test, install-test]
+    if: always()
+    steps:
+      - name: Check CI status
+        run: |
+          if [[ "${{ needs.lint.result }}" == "failure" ]] || \
+             [[ "${{ needs.typecheck.result }}" == "failure" ]] || \
+             [[ "${{ needs.test.result }}" == "failure" ]] || \
+             [[ "${{ needs.install-test.result }}" == "failure" ]]; then
+            echo "CI failed"
+            exit 1
+          fi
+          echo "CI passed"

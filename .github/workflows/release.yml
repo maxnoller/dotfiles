@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
+
+      - name: Get version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Update version in pyproject.toml
+        run: |
+          sed -i "s/^version = .*/version = \"${{ steps.version.outputs.version }}\"/" pyproject.toml
+
+      - name: Run tests
+        run: uv run pytest
+
+      - name: Build package
+        run: uv build
+
+      - name: Verify wheel exists
+        run: |
+          ls -la dist/
+          test -f "dist/dotfiles-${{ steps.version.outputs.version }}-py3-none-any.whl"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

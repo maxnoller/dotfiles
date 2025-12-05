@@ -19,6 +19,36 @@ git clone https://github.com/maxnoller/dotfiles.git ~/dotfiles
 ~/dotfiles/setup.sh
 ```
 
+### Installation Options
+
+The bootstrap script supports several options:
+
+```bash
+# Install a specific version
+curl -fsSL ... | bash -s -- --version v0.1.0
+
+# Install from local source (for development)
+curl -fsSL ... | bash -s -- --local
+
+# Clone to a custom directory
+curl -fsSL ... | bash -s -- --dir ~/my-dotfiles
+
+# Use a specific branch
+curl -fsSL ... | bash -s -- --branch dev
+```
+
+The `setup.sh` script also supports:
+
+```bash
+# Install from local source instead of GitHub release
+./setup.sh --local
+
+# Install a specific version
+./setup.sh --version v0.1.0
+```
+
+By default, the CLI is installed from the latest GitHub release. Use `--local` for development.
+
 ## Commands
 
 After setup, `dotfiles` is available globally:
