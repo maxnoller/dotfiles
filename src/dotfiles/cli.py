@@ -13,11 +13,11 @@ from dotfiles import __version__, console
 from dotfiles.config import Config
 from dotfiles.runner import Runner, RunnerError
 from dotfiles.tasks import (
-    install_apt_packages,
     install_gh_extensions,
     install_oh_my_zsh,
     install_proto,
     install_proto_tools,
+    install_system_packages,
     install_tpm,
     install_zsh_plugins,
     set_default_shell,
@@ -87,7 +87,8 @@ def install(
     try:
         # Phase 1: System packages
         console.header("--- Phase 1: System Packages ---")
-        install_apt_packages(runner, config)
+        console.info(f"Detected distro: {config.distro.value}")
+        install_system_packages(runner, config)
 
         # Phase 2: Tools
         console.header("--- Phase 2: Tools ---")

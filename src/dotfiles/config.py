@@ -1,10 +1,40 @@
 """Configuration using Pydantic Settings."""
 
+import platform
+from enum import Enum
 from pathlib import Path
 from typing import Annotated
 
 from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Distro(Enum):
+    """Supported Linux distributions."""
+
+    ARCH = "arch"
+    UBUNTU = "ubuntu"
+    DEBIAN = "debian"
+    UNKNOWN = "unknown"
+
+
+def detect_distro() -> Distro:
+    """Detect the current Linux distribution."""
+    if platform.system() != "Linux":
+        return Distro.UNKNOWN
+
+    # Check /etc/os-release (standard on modern distros)
+    os_release = Path("/etc/os-release")
+    if os_release.exists():
+        content = os_release.read_text().lower()
+        if "arch" in content:
+            return Distro.ARCH
+        if "ubuntu" in content:
+            return Distro.UBUNTU
+        if "debian" in content:
+            return Distro.DEBIAN
+
+    return Distro.UNKNOWN
 
 
 class GitConfig(BaseSettings):
@@ -79,3 +109,27 @@ class Config(BaseSettings):
     def local_bin(self) -> Path:
         """Path to ~/.local/bin."""
         return self.home / ".local" / "bin"
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def distro(self) -> Distro:
+        """Detected Linux distribution."""
+        return detect_distro()
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def is_arch(self) -> bool:
+        """Check if running on Arch Linux."""
+        return self.distro == Distro.ARCH
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def is_ubuntu(self) -> bool:
+        """Check if running on Ubuntu."""
+        return self.distro == Distro.UBUNTU
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def is_debian_based(self) -> bool:
+        """Check if running on Debian-based distro (Ubuntu, Debian)."""
+        return self.distro in (Distro.UBUNTU, Distro.DEBIAN)
