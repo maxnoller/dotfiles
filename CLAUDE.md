@@ -8,7 +8,7 @@ This is a **Python-based dotfiles** repository that sets up a development enviro
 
 - **Python CLI** (`dotfiles`) - Built with Typer, Pydantic, and Rich
 - **uv** - Python package manager and runner
-- **Proto** - Multi-language version manager (manages Node.js, uv, gh)
+- **Proto** - Multi-language version manager (manages Bun, uv, gh)
 - **GNU Stow** - Symlink-based configuration management
 
 ## Primary Commands
@@ -97,6 +97,7 @@ Uses **GNU Stow** for symlink-based configuration. Configs in `config/` are depl
 - `config/nvim/` → `~/.config/nvim`
 - `config/tmux/` → `~/.tmux.conf`
 - `config/zsh/` → `~/.zshrc`, `~/.p10k.zsh`
+- `config/claude/` → `~/.claude` (Claude Code settings)
 
 ### Environment Variables
 
@@ -109,12 +110,6 @@ export DOTFILES_GIT_WORK_EMAIL="work@company.com"
 export DOTFILES_GIT_WORK_REMOTE_PATTERN="gitlab.company.com*/**"
 ```
 
-Other configuration:
-
-```bash
-export DOTFILES_NODE_VERSION="20"  # Override default Node.js version
-```
-
 ## Key Technologies
 
 | Tool | Purpose |
@@ -122,7 +117,7 @@ export DOTFILES_NODE_VERSION="20"  # Override default Node.js version
 | **Typer** | CLI framework with automatic help generation |
 | **Pydantic Settings** | Configuration with environment variable support |
 | **Rich** | Terminal output formatting |
-| **Proto** | Version management for Node.js, uv, gh (replaces NVM) |
+| **Proto** | Version management for Bun, pnpm, uv, gh |
 | **GNU Stow** | Symlink farm manager for configs |
 
 ## Important Patterns
@@ -139,7 +134,8 @@ export DOTFILES_NODE_VERSION="20"  # Override default Node.js version
 1. **APT packages**: git, zsh, stow, curl, neovim
 2. **Oh My Zsh** with Powerlevel10k theme and plugins
 3. **Proto** toolchain manager
-4. **Proto-managed tools**: Node.js, uv, gh (configured in `.prototools`)
+4. **Proto-managed tools**: Bun, pnpm, uv, gh (configured in `.prototools`)
 5. **TPM** (Tmux Plugin Manager)
-6. **Stowed configs**: zsh, tmux, nvim
-7. **GitHub CLI extensions**: gh-act
+6. **Claude Code** CLI (installed via Bun)
+7. **Stowed configs**: zsh, tmux, nvim, claude
+8. **GitHub CLI extensions**: gh-act

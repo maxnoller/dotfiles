@@ -45,9 +45,7 @@ class GitConfig(BaseSettings):
     name: Annotated[str, Field(description="Git user name")] = ""
     email: Annotated[str, Field(description="Git user email")] = ""
     work_email: Annotated[str, Field(description="Git work email")] = ""
-    work_remote_pattern: Annotated[
-        str, Field(description="Pattern to match work remotes")
-    ] = ""
+    work_remote_pattern: Annotated[str, Field(description="Pattern to match work remotes")] = ""
 
 
 class Config(BaseSettings):
@@ -60,12 +58,7 @@ class Config(BaseSettings):
 
     # Paths
     home: Path = Field(default_factory=Path.home)
-    dotfiles_dir: Path = Field(
-        default_factory=lambda: Path(__file__).resolve().parents[2]
-    )
-
-    # Versions
-    node_version: str = "23"
+    dotfiles_dir: Path = Field(default_factory=lambda: Path(__file__).resolve().parents[2])
 
     # Runtime flags
     dry_run: bool = False

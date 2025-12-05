@@ -13,6 +13,7 @@ from dotfiles import __version__, console
 from dotfiles.config import Config
 from dotfiles.runner import Runner, RunnerError
 from dotfiles.tasks import (
+    install_claude_code,
     install_gh_extensions,
     install_oh_my_zsh,
     install_proto,
@@ -21,11 +22,14 @@ from dotfiles.tasks import (
     install_tpm,
     install_zsh_plugins,
     set_default_shell,
+    setup_claude_mcp_servers,
+    setup_claude_skills,
     setup_directories,
     setup_git_config,
     setup_local_bin,
     stow_configs,
     unstow_configs,
+    update_claude_code,
     update_tpm,
     update_zsh_plugins,
 )
@@ -97,6 +101,9 @@ def install(
         install_proto_tools(runner, config)  # node, uv, gh via proto
         install_zsh_plugins(runner, config)
         install_tpm(runner, config)
+        install_claude_code(runner, config)
+        setup_claude_mcp_servers(runner, config)
+        setup_claude_skills(runner, config)
 
         # Phase 3: Configuration
         console.header("--- Phase 3: Configuration ---")
@@ -157,9 +164,10 @@ def sync(
         # Re-apply configs
         stow_configs(runner, config)
 
-        # Update plugins
+        # Update plugins and tools
         update_zsh_plugins(runner, config)
         update_tpm(runner, config)
+        update_claude_code(runner, config)
 
         console.header("=== Sync Complete! ===")
 
@@ -259,8 +267,9 @@ def status() -> None:
         ("Proto", config.proto_home.exists(), str(config.proto_home)),
         ("uv", runner.command_exists("uv"), ""),
         ("TPM", (config.home / ".tmux/plugins/tpm").exists(), ""),
-        ("Node.js", runner.command_exists("node"), ""),
+        ("Bun", runner.command_exists("bun"), ""),
         ("GitHub CLI", runner.command_exists("gh"), ""),
+        ("Claude Code", runner.command_exists("claude"), ""),
         ("Neovim", runner.command_exists("nvim"), ""),
         ("Zsh", runner.command_exists("zsh"), ""),
         ("Stow", runner.command_exists("stow"), ""),
@@ -271,6 +280,7 @@ def status() -> None:
         (".zshrc", (config.home / ".zshrc").is_symlink()),
         (".tmux.conf", (config.home / ".tmux.conf").is_symlink()),
         (".config/nvim", (config.home / ".config/nvim").is_symlink()),
+        (".claude", (config.home / ".claude").is_symlink()),
     ]
 
     for name, installed, info in checks:

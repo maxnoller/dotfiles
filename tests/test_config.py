@@ -35,7 +35,6 @@ class TestConfig:
         """Test that default paths are set correctly."""
         config = Config()
         assert config.home == Path.home()
-        assert config.node_version == "23"
         assert config.dry_run is False
         assert config.verbose is False
 
@@ -57,8 +56,3 @@ class TestConfig:
         config = Config(verbose=True)
         assert config.verbose is True
 
-    def test_node_version_override(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Test overriding node version via environment."""
-        monkeypatch.setenv("DOTFILES_NODE_VERSION", "20")
-        config = Config()
-        assert config.node_version == "20"

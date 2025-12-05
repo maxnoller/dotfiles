@@ -5,7 +5,7 @@ from dotfiles.config import Config
 from dotfiles.runner import Runner
 
 # Tools to install via proto (defined in .prototools)
-PROTO_TOOLS = ["node", "uv", "gh"]
+PROTO_TOOLS = ["bun", "pnpm", "uv", "gh"]
 
 
 def install_proto(runner: Runner, config: Config) -> None:
@@ -19,14 +19,12 @@ def install_proto(runner: Runner, config: Config) -> None:
         return
 
     console.info("Installing proto toolchain manager...")
-    runner.run_shell(
-        "curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes"
-    )
+    runner.run_shell("curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes")
     console.success("Proto installed")
 
 
 def install_proto_tools(runner: Runner, config: Config) -> None:
-    """Install tools managed by proto (node, uv, gh)."""
+    """Install tools managed by proto (bun, pnpm, uv, gh)."""
     console.header("Installing proto-managed tools")
 
     proto_bin = config.proto_home / "bin" / "proto"
@@ -61,9 +59,7 @@ def install_tpm(runner: Runner, config: Config) -> None:
     console.info("Installing TPM...")
     if not config.dry_run:
         tpm_dir.parent.mkdir(parents=True, exist_ok=True)
-    runner.run(
-        ["git", "clone", "https://github.com/tmux-plugins/tpm.git", str(tpm_dir)]
-    )
+    runner.run(["git", "clone", "https://github.com/tmux-plugins/tpm.git", str(tpm_dir)])
     console.success("TPM installed")
 
 
