@@ -2,42 +2,52 @@
 
 Development environment setup CLI built with Python, using uv for package management.
 
+Supports **Ubuntu**, **Debian**, and **Arch Linux**.
+
 ## Quick Start
 
+**One-liner** (fresh machine, installs everything):
+
 ```bash
-# Clone and run setup
-git clone <repository-url> ~/dotfiles
-cd ~/dotfiles
-./setup.sh
+curl -fsSL https://raw.githubusercontent.com/maxnoller/dotfiles/main/scripts/bootstrap.sh | bash
+```
+
+**Manual** (if you already have git/curl):
+
+```bash
+git clone https://github.com/maxnoller/dotfiles.git ~/dotfiles
+~/dotfiles/setup.sh
 ```
 
 ## Commands
 
+After setup, `dotfiles` is available globally:
+
 ```bash
 # Full installation
-uv run dotfiles install
+dotfiles install
 
 # Preview changes without applying
-uv run dotfiles install --dry-run
+dotfiles install --dry-run
 
 # Update/sync configurations
-uv run dotfiles sync
+dotfiles sync
 
 # Check installation status
-uv run dotfiles status
+dotfiles status
 
 # Remove symlinks
-uv run dotfiles uninstall
+dotfiles uninstall
 
 # Remove symlinks and tools
-uv run dotfiles uninstall --remove-tools
+dotfiles uninstall --remove-tools
 ```
 
 ## What Gets Installed
 
 | Component | Source | Description |
 |-----------|--------|-------------|
-| **System Packages** | apt | git, zsh, stow, curl, neovim |
+| **System Packages** | apt/pacman | git, zsh, stow, curl, neovim |
 | **Oh My Zsh** | installer | Zsh framework with Powerlevel10k theme |
 | **Proto** | installer | Multi-language version manager |
 | **Node.js** | proto | JavaScript runtime |
