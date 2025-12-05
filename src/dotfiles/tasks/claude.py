@@ -14,9 +14,9 @@ MCP_SERVERS = [
     ("playwright", "stdio", "npx @playwright/mcp@latest --headless"),
 ]
 
-# Skills marketplace and individual skills to install
+# Skills marketplace and plugin bundles to install
 SKILLS_MARKETPLACE = "anthropics/skills"
-SKILLS = ["frontend-design", "webapp-testing"]
+SKILL_PLUGINS = ["example-skills"]  # Includes frontend-design, webapp-testing, etc.
 
 # Default settings for new installations
 DEFAULT_SETTINGS = {
@@ -184,18 +184,18 @@ def setup_claude_skills(runner: Runner, _config: Config) -> None:
     else:
         console.skip("Marketplace already added or failed")
 
-    # Install individual skills
-    for skill in SKILLS:
-        console.info(f"Installing skill: {skill}...")
+    # Install skill plugin bundles
+    for plugin in SKILL_PLUGINS:
+        console.info(f"Installing plugin: {plugin}...")
         result = runner.run(
-            ["claude", "plugin", "install", f"{skill}@anthropic-agent-skills"],
+            ["claude", "plugin", "install", f"{plugin}@anthropic-agent-skills"],
             check=False,
         )
 
         if result.returncode == 0:
-            console.success(f"{skill} installed")
+            console.success(f"{plugin} installed")
         else:
-            console.skip(f"{skill} already installed or failed")
+            console.skip(f"{plugin} already installed or failed")
 
 
 def setup_claude_settings(_runner: Runner, config: Config) -> None:

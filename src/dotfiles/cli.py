@@ -77,6 +77,10 @@ def install(
         bool,
         typer.Option("--verbose", "-v", help="Enable verbose output"),
     ] = False,
+    skip_packages: Annotated[
+        bool,
+        typer.Option("--skip-packages", help="Skip system package installation (requires sudo)"),
+    ] = False,
 ) -> None:
     """Full installation of packages, tools, and configurations."""
     if verbose:
@@ -93,8 +97,11 @@ def install(
     try:
         # Phase 1: System packages
         console.header("--- Phase 1: System Packages ---")
-        console.info(f"Detected distro: {config.distro.value}")
-        install_system_packages(runner, config)
+        if skip_packages:
+            console.skip("Skipping system packages (--skip-packages)")
+        else:
+            console.info(f"Detected distro: {config.distro.value}")
+            install_system_packages(runner, config)
 
         # Phase 2: Tools
         console.header("--- Phase 2: Tools ---")
