@@ -55,6 +55,7 @@ git push -u origin $(git branch --show-current)
 ### 4. Analyze Changes
 
 From the commits and diff, identify:
+
 - **Type**: feat, fix, refactor, docs, test, chore, perf, ci
 - **Scope**: Component or area affected (optional)
 - **Summary**: One-line description of the overall change
@@ -65,11 +66,13 @@ From the commits and diff, identify:
 ### 5. Generate PR Title
 
 Follow conventional commits format:
-```
+
+```text
 <type>(<scope>): <description>
 ```
 
 Examples:
+
 - `feat(auth): add OAuth2 login flow`
 - `fix: resolve memory leak in worker pool`
 - `refactor(api): simplify error handling`
@@ -126,6 +129,7 @@ Be **conservative** with labels - only apply when clearly appropriate:
 | CI/CD changes | `ci`, `github-actions` |
 
 **Rules:**
+
 - Only use labels that exist in the repo (from `gh label list`)
 - When uncertain, use NO labels rather than wrong ones
 - Max 2-3 labels per PR
@@ -147,6 +151,7 @@ Be **conservative** with labels - only apply when clearly appropriate:
 **Labels:** `enhancement`
 
 **Body:**
+
 ```markdown
 ## Summary
 
