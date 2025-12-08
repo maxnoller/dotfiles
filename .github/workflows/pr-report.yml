@@ -13,7 +13,7 @@ jobs:
     name: Generate PR Report
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -73,7 +73,7 @@ jobs:
           fi
 
       - name: Comment on PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const changedFiles = `${{ steps.changed.outputs.files }}`.split('\n').filter(f => f);

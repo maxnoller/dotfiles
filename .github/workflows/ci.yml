@@ -15,7 +15,7 @@ jobs:
     name: Lint & Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: moonrepo/setup-toolchain@v0
         with:
@@ -31,7 +31,7 @@ jobs:
     name: Type Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: moonrepo/setup-toolchain@v0
         with:
@@ -48,7 +48,7 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: moonrepo/setup-toolchain@v0
         with:
@@ -64,7 +64,7 @@ jobs:
         run: uv run pytest --cov=dotfiles --cov-report=xml --cov-report=term
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: matrix.python-version == '3.12'
         with:
           files: coverage.xml
@@ -80,7 +80,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, ubuntu-24.04]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: moonrepo/setup-toolchain@v0
         with:
