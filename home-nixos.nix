@@ -17,7 +17,12 @@
     ./modules/tools-nixos.nix  # NixOS variant without workarounds
     ./modules/claude.nix
     ./modules/fastfetch.nix
-    ./modules/browsers.nix     # Browsers work natively on NixOS
+    # ./modules/browsers.nix     # Disabled to match remote setup purity
+    
+    # Hyprland Desktop Environment
+    ./modules/hyprland.nix
+    ./modules/waybar.nix
+    ./modules/rofi.nix
   ];
 
   home.sessionVariables = {

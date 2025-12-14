@@ -26,6 +26,9 @@
 
     # Terminal
     ghostty
+
+    # Fonts
+    nerd-fonts.jetbrains-mono
   ];
 
   # NOTE: No Ghostty desktop entry workaround needed on NixOS!

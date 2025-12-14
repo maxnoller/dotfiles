@@ -22,12 +22,15 @@
   time.timeZone = "Europe/Berlin";  # Adjust to your timezone
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # Desktop Environment (GNOME)
-  services.xserver = {
+  # Desktop Environment (Hyprland + SDDM)
+  services.displayManager.sddm = {
     enable = true;
-    displayManager.gdm.enable = true;
-    desktopManager.gnome.enable = true;
+    wayland.enable = true;
+    theme = "where_is_my_sddm_theme";
+    extraPackages = [ pkgs.where-is-my-sddm-theme ];
   };
+  programs.hyprland.enable = true;
+  programs.hyprland.xwayland.enable = true; # Allow running X11 apps
 
   # Audio
   security.rtkit.enable = true;

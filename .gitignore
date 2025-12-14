@@ -40,3 +40,4 @@ htmlcov/
 .env.local
 *.local
 result
+*.qcow2

@@ -29,6 +29,7 @@
     virtualisation = {
       memorySize = 4096;  # MB
       cores = 4;
+      resolution = { x = 1920; y = 1080; };
       qemu.options = [
         "-enable-kvm"
         "-vga virtio"

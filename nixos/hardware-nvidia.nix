@@ -5,11 +5,10 @@
 { config, lib, pkgs, ... }:
 
 {
-  # OpenGL
-  hardware.opengl = {
+  # OpenGL (driSupport is now automatic in nixpkgs-unstable)
+  hardware.graphics = {
     enable = true;
-    driSupport = true;
-    driSupport32Bit = true;  # For Steam/32-bit games
+    enable32Bit = true;  # For Steam/32-bit games
   };
 
   # NVIDIA driver
