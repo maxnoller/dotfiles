@@ -12,18 +12,17 @@
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
     let
       system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+        config.nvidia.acceptLicense = true;
+      };
     in
     {
       homeConfigurations."max" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
-
-        # Pass inputs to modules so we can use them there
         extraSpecialArgs = { inherit inputs; };
-
-        modules = [
-          ./home.nix
-        ];
+        modules = [ ./home.nix ];
       };
     };
 }
