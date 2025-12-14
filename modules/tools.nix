@@ -20,5 +20,8 @@
     bitwarden-cli
     # Network / VPN
     tailscale
+
+    # Terminal
+    ghostty
   ];
 }
