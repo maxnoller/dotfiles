@@ -31,7 +31,7 @@
       if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then . $HOME/.nix-profile/etc/profile.d/nix.sh; fi
       
       # Run fastfetch on new interactive shells (but not in nested shells or scripts)
-      if [[ $SHLVL -eq 1 && -z "$INSIDE_EMACS" && -z "$VSCODE_INJECTION" ]]; then
+      if [[ -z "$INSIDE_EMACS" && -z "$VSCODE_INJECTION" ]]; then
         fastfetch
       fi
     '';
