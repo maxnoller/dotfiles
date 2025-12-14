@@ -5,18 +5,17 @@
   home.homeDirectory = "/home/max";
   home.stateVersion = "24.05";
   
-  # Enable generic Linux integration
+  # Enable generic Linux integration (for non-NixOS)
   targets.genericLinux.enable = true;
 
+  # Shared modules (used by all machines)
   imports = [
-    ./modules/gpu.nix      # NVIDIA GPU driver config
     ./modules/zsh.nix
     ./modules/git.nix
     ./modules/tmux.nix
     ./modules/tools.nix
     ./modules/claude.nix
     ./modules/fastfetch.nix
-    ./modules/browsers.nix
   ];
 
   home.sessionVariables = {

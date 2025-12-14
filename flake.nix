@@ -11,18 +11,36 @@
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
     let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-        config.nvidia.acceptLicense = true;
-      };
+      # Helper function to create home configurations
+      mkHome = { system ? "x86_64-linux", extraModules ? [] }:
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+            config.nvidia.acceptLicense = true;
+          };
+          extraSpecialArgs = { inherit inputs; };
+          modules = [ ./home.nix ] ++ extraModules;
+        };
     in
     {
-      homeConfigurations."max" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        extraSpecialArgs = { inherit inputs; };
-        modules = [ ./home.nix ];
+      homeConfigurations = {
+        # Desktop with NVIDIA GPU and GUI apps
+        # Usage: home-manager switch --flake .#desktop
+        "desktop" = mkHome {
+          extraModules = [ ./hosts/desktop.nix ];
+        };
+
+        # Server without GPU or GUI apps
+        # Usage: home-manager switch --flake .#server
+        "server" = mkHome {
+          extraModules = [ ./hosts/server.nix ];
+        };
+        
+        # Legacy: keep "max" as alias to desktop for backwards compatibility
+        "max" = mkHome {
+          extraModules = [ ./hosts/desktop.nix ];
+        };
       };
     };
 }
