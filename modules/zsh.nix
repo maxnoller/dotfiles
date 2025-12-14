@@ -36,13 +36,13 @@
       if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then . $HOME/.nix-profile/etc/profile.d/nix.sh; fi
       
       # Source p10k config
-      # We assume the user has this file. If not, they need to run p10k configure.
-      # Sourcing it from the source repo (config/zsh/.p10k.zsh) to keep it declarative?
-      # Or assuming it's in HOME?
-      # Plan said "Source existing .p10k.zsh from config/zsh/"
-      
       if [ -f ${config.home.homeDirectory}/dotfiles/config/zsh/.p10k.zsh ]; then
         source ${config.home.homeDirectory}/dotfiles/config/zsh/.p10k.zsh
+      fi
+      
+      # Run fastfetch on new interactive shells (but not in nested shells or scripts)
+      if [[ $SHLVL -eq 1 && -z "$INSIDE_EMACS" && -z "$VSCODE_INJECTION" ]]; then
+        fastfetch
       fi
     '';
 

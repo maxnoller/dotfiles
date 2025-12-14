@@ -17,6 +17,7 @@
     ./modules/tmux.nix
     ./modules/tools.nix
     ./modules/claude.nix
+    ./modules/fastfetch.nix
   ];
 
   # Home Manager can also manage your environment variables specifically.
