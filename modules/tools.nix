@@ -14,5 +14,9 @@
     jq
     tree
     curl
+    
+    # Security / Password Management
+    bitwarden-desktop
+    bitwarden-cli
   ];
 }
