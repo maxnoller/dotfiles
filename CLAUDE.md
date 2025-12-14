@@ -4,60 +4,38 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Overview
 
-This is a **Python-based dotfiles** repository that sets up a development environment. It uses:
+This is a **Nix-based dotfiles** repository that manages a development environment using:
 
-- **Python CLI** (`dotfiles`) - Built with Typer, Pydantic, and Rich
-- **uv** - Python package manager and runner
-- **Proto** - Multi-language version manager (manages Bun, uv, gh)
-- **GNU Stow** - Symlink-based configuration management
+- **Nix Flakes** - Reproducible package management
+- **Home Manager** - Declarative home environment configuration
+- **Neovim** - Symlinked configuration in `config/nvim/`
 
 ## Primary Commands
 
-### Running the CLI
+### Apply Configuration
 
 ```bash
-# Install everything
-uv run dotfiles install
+# Apply home-manager configuration
+home-manager switch --flake .#max
 
-# Dry-run (preview without changes)
-uv run dotfiles install --dry-run
+# Update flakes and apply
+nix flake update && home-manager switch --flake .#max
 
-# Update/sync configurations
-uv run dotfiles sync
-
-# Check installation status
-uv run dotfiles status
-
-# Uninstall
-uv run dotfiles uninstall
-uv run dotfiles uninstall --remove-tools  # Also remove oh-my-zsh, proto, etc.
-```
-
-### Bootstrap (Fresh System)
-
-```bash
-# Run setup script (installs uv if needed, then runs dotfiles install)
-./setup.sh
+# Convenient alias (after initial setup)
+hm-update
 ```
 
 ### Development
 
 ```bash
-# Install dev dependencies
-uv sync --group dev
+# Check flake validity
+nix flake check
 
-# Run linters
-uv run ruff check src/
-uv run ruff format src/
+# Build configuration (dry-run)
+nix build .#homeConfigurations.max.activationPackage --dry-run
 
-# Type checking
-uv run basedpyright src/
-
-# Run tests
-uv run pytest
-
-# Run specific test
-uv run pytest tests/test_cli.py -v
+# Format Nix files
+nix run nixpkgs#nixfmt-rfc-style -- *.nix modules/*.nix
 ```
 
 ## Architecture
@@ -66,75 +44,57 @@ uv run pytest tests/test_cli.py -v
 
 ```
 ~/dotfiles/
-├── src/dotfiles/           # Python CLI package
-│   ├── __init__.py
-│   ├── cli.py              # Typer CLI commands
-│   ├── config.py           # Pydantic Settings configuration
-│   ├── console.py          # Rich console output
-│   ├── runner.py           # Subprocess runner with sudo caching
-│   └── tasks/              # Installation task modules
-│       ├── apt.py          # APT package installation
-│       ├── shell.py        # Oh My Zsh, plugins
-│       ├── tools.py        # Proto, proto tools, TPM
-│       ├── git.py          # Git configuration
-│       ├── stow.py         # Stow config deployment
-│       └── github.py       # GitHub CLI extensions
-├── config/                 # Stow-managed configuration files
-│   ├── nvim/               # Neovim configuration
-│   ├── tmux/               # Tmux configuration
-│   └── zsh/                # Zsh configuration (.zshrc, .p10k.zsh)
-├── scripts/                # Utility scripts
-├── tests/                  # Pytest tests
-├── pyproject.toml          # Project configuration
-├── .prototools             # Proto version pins and plugin config
-└── setup.sh                # Bootstrap script
+├── flake.nix                # Nix flake entry point
+├── flake.lock               # Locked dependencies
+├── home.nix                 # Main home-manager config
+├── modules/                 # Home Manager modules
+│   ├── zsh.nix              # Zsh + Starship + FZF
+│   ├── git.nix              # Git + GitHub CLI
+│   ├── tmux.nix             # Tmux + plugins
+│   ├── tools.nix            # Developer tools (bun, uv, ripgrep, etc.)
+│   ├── claude.nix           # Claude Code settings
+│   └── fastfetch.nix        # System info display
+├── config/                  # External configurations
+│   └── nvim/                # Neovim config (symlinked)
+└── .github/workflows/       # CI for flake validation
 ```
 
-### Configuration Management
+### Modules
 
-Uses **GNU Stow** for symlink-based configuration. Configs in `config/` are deployed to home:
-
-- `config/nvim/` → `~/.config/nvim`
-- `config/tmux/` → `~/.tmux.conf`
-- `config/zsh/` → `~/.zshrc`, `~/.p10k.zsh`
-
-### Environment Variables
-
-Git configuration can be set via environment variables (or prompted interactively):
-
-```bash
-export DOTFILES_GIT_NAME="Your Name"
-export DOTFILES_GIT_EMAIL="your@email.com"
-export DOTFILES_GIT_WORK_EMAIL="work@company.com"
-export DOTFILES_GIT_WORK_REMOTE_PATTERN="gitlab.company.com*/**"
-```
+| Module | Purpose |
+|--------|---------|
+| `zsh.nix` | Zsh with Oh My Zsh, Starship prompt, FZF |
+| `git.nix` | Git configuration, GitHub CLI |
+| `tmux.nix` | Tmux with plugins (vim-navigator, resurrect, continuum) |
+| `tools.nix` | Developer tools: bun, uv, pnpm, ripgrep, fd, jq |
+| `claude.nix` | Claude Code settings.json |
+| `fastfetch.nix` | System info on shell startup |
 
 ## Key Technologies
 
 | Tool | Purpose |
 |------|---------|
-| **Typer** | CLI framework with automatic help generation |
-| **Pydantic Settings** | Configuration with environment variable support |
-| **Rich** | Terminal output formatting |
-| **Proto** | Version management for Bun, pnpm, uv, gh |
-| **GNU Stow** | Symlink farm manager for configs |
+| **Nix Flakes** | Reproducible, declarative package management |
+| **Home Manager** | User environment configuration |
+| **Starship** | Cross-shell prompt |
+| **FZF** | Fuzzy finder with blue theme |
 
 ## Important Patterns
 
-- All tasks are **idempotent** - safe to run multiple times
-- Tasks check existence before installing (skip if already present)
-- **Dry-run mode** (`--dry-run`) previews all changes
-- **Error handling** with `RunnerError` exception and proper exit codes
-- Git configuration is **prompted interactively** (not hardcoded)
-- Uses `subprocess` with list arguments to avoid shell injection
+- All configuration is **declarative** in `.nix` files
+- Run `home-manager switch --flake .#max` to apply changes
+- Neovim config is symlinked (not managed by Nix) for flexibility
+- Shell aliases, environment variables, and plugins are in `modules/zsh.nix`
 
 ## What Gets Installed
 
-1. **APT packages**: git, zsh, stow, curl, neovim
-2. **Oh My Zsh** with Powerlevel10k theme and plugins
-3. **Proto** toolchain manager
-4. **Proto-managed tools**: Bun, pnpm, uv, gh (configured in `.prototools`)
-5. **TPM** (Tmux Plugin Manager)
-6. **Claude Code** CLI (installed via Bun)
-7. **Stowed configs**: zsh, tmux, nvim, claude
-8. **GitHub CLI extensions**: gh-act
+Packages managed via `modules/tools.nix`:
+- **Developer tools**: bun, uv, pnpm
+- **Utilities**: ripgrep, fd, jq, tree, curl
+
+Programs with full configuration:
+- **Zsh** with Oh My Zsh, Starship, syntax highlighting
+- **Tmux** with vim-tmux-navigator, resurrect, continuum
+- **Git** with sensible defaults
+- **FZF** with blue/black theme
+- **Fastfetch** for system info display
