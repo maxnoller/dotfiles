@@ -61,53 +61,29 @@
     };
   };
 
-  # Starship prompt (replaces p10k)
+  # Starship prompt - minimal
   programs.starship = {
     enable = true;
     settings = {
       add_newline = false;
       
-      format = "$directory$git_branch$git_status$nix_shell$nodejs$python$rust$character ";
+      # Minimal format: directory, git branch, character
+      format = "$directory$git_branch$character ";
       
       character = {
-        success_symbol = "[➜](bold green)";
-        error_symbol = "[✗](bold red)";
+        success_symbol = "[❯](bold green)";
+        error_symbol = "[❯](bold red)";
       };
       
       directory = {
-        truncation_length = 3;
-        truncate_to_repo = true;
-        style = "bold cyan";
-      };
-      
-      git_branch = {
-        symbol = " ";
-        style = "bold purple";
-      };
-      
-      git_status = {
-        style = "bold red";
-      };
-      
-      nix_shell = {
-        symbol = " ";
+        truncation_length = 2;
         style = "bold blue";
       };
       
-      nodejs = {
-        symbol = " ";
-      };
-      
-      python = {
-        symbol = " ";
-      };
-      
-      rust = {
-        symbol = " ";
-      };
-      
-      package = {
-        disabled = true;
+      git_branch = {
+        symbol = "";
+        format = "[$branch]($style) ";
+        style = "bold purple";
       };
     };
   };
