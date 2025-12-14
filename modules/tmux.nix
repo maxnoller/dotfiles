@@ -47,16 +47,22 @@
     ];
 
     extraConfig = ''
-      # Blue monochrome theme
+      # Blue monochrome theme - override everything
+      set -g status-bg "#0f0f1a"
+      set -g status-fg "#6db3f2"
       set -g status-style "bg=#0f0f1a,fg=#6db3f2"
+      set -g status-left-style "bg=#0f0f1a,fg=#6db3f2"
+      set -g status-right-style "bg=#0f0f1a,fg=#6db3f2"
       set -g pane-border-style "fg=#1a1a2e"
       set -g pane-active-border-style "fg=#4a90d9"
       set -g message-style "bg=#1a1a2e,fg=#6db3f2"
       set -g mode-style "bg=#4a90d9,fg=#0f0f1a"
       
       # Window status
-      set -g window-status-format "#[fg=#5c5c70] #I:#W "
-      set -g window-status-current-format "#[fg=#6db3f2,bold] #I:#W "
+      set -g window-status-style "bg=#0f0f1a,fg=#5c5c70"
+      set -g window-status-current-style "bg=#0f0f1a,fg=#6db3f2,bold"
+      set -g window-status-format " #I:#W "
+      set -g window-status-current-format " #I:#W "
       
       # Enable true color support
       set -ga terminal-overrides ",*256col*:Tc"
