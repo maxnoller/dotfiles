@@ -61,34 +61,33 @@
     };
   };
 
-  # Starship prompt - minimal
+  # Starship prompt - minimal, blue monochrome
   programs.starship = {
     enable = true;
     settings = {
       add_newline = false;
       
-      # Minimal format: directory, git branch, character
       format = "$directory$git_branch$character ";
       
       character = {
-        success_symbol = "[❯](bold green)";
+        success_symbol = "[❯](bold blue)";
         error_symbol = "[❯](bold red)";
       };
       
       directory = {
         truncation_length = 2;
-        style = "bold blue";
+        style = "bold bright-blue";
       };
       
       git_branch = {
         symbol = "";
         format = "[$branch]($style) ";
-        style = "bold purple";
+        style = "blue";
       };
     };
   };
 
-  # FZF fuzzy finder
+  # FZF - blue/black theme
   programs.fzf = {
     enable = true;
     enableZshIntegration = true;
@@ -97,21 +96,20 @@
       "--height 40%"
       "--layout=reverse"
       "--border"
-      "--preview 'head -100 {}'"
     ];
     colors = {
-      "bg+" = "#313244";
-      "bg" = "#1e1e2e";
-      "spinner" = "#f5e0dc";
-      "hl" = "#f38ba8";
-      "fg" = "#cdd6f4";
-      "header" = "#f38ba8";
-      "info" = "#cba6f7";
-      "pointer" = "#f5e0dc";
-      "marker" = "#f5e0dc";
-      "fg+" = "#cdd6f4";
-      "prompt" = "#cba6f7";
-      "hl+" = "#f38ba8";
+      "bg+" = "#1a1a2e";
+      "bg" = "#0f0f1a";
+      "spinner" = "#4a90d9";
+      "hl" = "#5c9fd4";
+      "fg" = "#a0a0b0";
+      "header" = "#4a90d9";
+      "info" = "#5c9fd4";
+      "pointer" = "#6db3f2";
+      "marker" = "#6db3f2";
+      "fg+" = "#d0d0e0";
+      "prompt" = "#4a90d9";
+      "hl+" = "#6db3f2";
     };
   };
 }

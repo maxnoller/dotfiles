@@ -34,14 +34,6 @@
       yank
       vim-tmux-navigator
       {
-        plugin = catppuccin;
-        extraConfig = ''
-          set -g @catppuccin_flavor 'mocha'
-          set -g @catppuccin_window_status_style "rounded"
-          set -g @catppuccin_date_time_text "%H:%M %d-%b-%y"
-        '';
-      }
-      {
         plugin = resurrect;
         extraConfig = "set -g @resurrect-strategy-nvim 'session'";
       }
@@ -55,6 +47,17 @@
     ];
 
     extraConfig = ''
+      # Blue monochrome theme
+      set -g status-style "bg=#0f0f1a,fg=#6db3f2"
+      set -g pane-border-style "fg=#1a1a2e"
+      set -g pane-active-border-style "fg=#4a90d9"
+      set -g message-style "bg=#1a1a2e,fg=#6db3f2"
+      set -g mode-style "bg=#4a90d9,fg=#0f0f1a"
+      
+      # Window status
+      set -g window-status-format "#[fg=#5c5c70] #I:#W "
+      set -g window-status-current-format "#[fg=#6db3f2,bold] #I:#W "
+      
       # Enable true color support
       set -ga terminal-overrides ",*256col*:Tc"
       
