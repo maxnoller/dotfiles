@@ -18,5 +18,7 @@
     # Security / Password Management
     bitwarden-desktop
     bitwarden-cli
+    # Network / VPN
+    tailscale
   ];
 }
