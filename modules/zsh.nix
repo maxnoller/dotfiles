@@ -65,7 +65,9 @@
   programs.starship = {
     enable = true;
     settings = {
-      add_newline = true;
+      add_newline = false;
+      
+      format = "$directory$git_branch$git_status$nix_shell$nodejs$python$rust$character ";
       
       character = {
         success_symbol = "[➜](bold green)";
