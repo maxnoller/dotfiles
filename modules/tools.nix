@@ -7,6 +7,8 @@
     nodejs
     uv
     pnpm
+    moon
+    proto
     
     # Utilities
     ripgrep
@@ -44,6 +46,36 @@
       StartupWMClass = "com.mitchellh.ghostty";
       DBusActivatable = "false";  # Fix for non-NixOS
       Keywords = "terminal;tty;pty;";
+    };
+  };
+
+  xdg.desktopEntries."spotify" = {
+    name = "Spotify";
+    genericName = "Music Player";
+    exec = "${pkgs.spotify}/bin/spotify %U";
+    terminal = false;
+    categories = [ "Audio" "Music" "Player" "AudioVideo" ];
+    icon = "spotify-client";
+    comment = "Music streaming service";
+    settings = {
+      StartupNotify = "true";
+      StartupWMClass = "spotify";
+      DBusActivatable = "false";
+    };
+  };
+
+  xdg.desktopEntries."discord" = {
+    name = "Discord";
+    genericName = "Internet Messenger";
+    exec = "${pkgs.discord}/bin/discord";
+    terminal = false;
+    categories = [ "Network" "InstantMessaging" ];
+    icon = "discord";
+    comment = "All-in-one voice and text chat";
+    settings = {
+      StartupNotify = "true";
+      StartupWMClass = "discord";
+      DBusActivatable = "false";
     };
   };
 }
