@@ -113,7 +113,6 @@
         plugin = nvim-lspconfig;
         type = "lua";
         config = ''
-          local lspconfig = require("lspconfig")
           local capabilities = vim.lsp.protocol.make_client_capabilities()
           
           -- Try to get cmp capabilities if available
@@ -136,8 +135,21 @@
             vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
           end
 
+          -- Helper to handle lsp setup (works with 0.10 and 0.11+)
+          local setup_server = function(server, config)
+            if vim.lsp.config then
+              -- Neovim 0.11+ (new API)
+              -- Merge capabilities, on_attach is handled by autocmds mostly now but we keep it for now
+              vim.lsp.config(server, config)
+              vim.lsp.enable(server)
+            else
+              -- Neovim 0.10 and older (legacy lspconfig)
+              require("lspconfig")[server].setup(config)
+            end
+          end
+
           -- Lua
-          lspconfig.lua_ls.setup({
+          setup_server("lua_ls", {
             capabilities = capabilities,
             on_attach = on_attach,
             settings = {
@@ -151,19 +163,19 @@
           })
 
           -- Python
-          lspconfig.basedpyright.setup({ capabilities = capabilities, on_attach = on_attach })
-          lspconfig.ruff.setup({ capabilities = capabilities, on_attach = on_attach })
+          setup_server("basedpyright", { capabilities = capabilities, on_attach = on_attach })
+          setup_server("ruff", { capabilities = capabilities, on_attach = on_attach })
 
           -- TypeScript
-          lspconfig.ts_ls.setup({ capabilities = capabilities, on_attach = on_attach })
+          setup_server("ts_ls", { capabilities = capabilities, on_attach = on_attach })
 
           -- Web
-          lspconfig.html.setup({ capabilities = capabilities, on_attach = on_attach })
-          lspconfig.cssls.setup({ capabilities = capabilities, on_attach = on_attach })
-          lspconfig.jsonls.setup({ capabilities = capabilities, on_attach = on_attach })
+          setup_server("html", { capabilities = capabilities, on_attach = on_attach })
+          setup_server("cssls", { capabilities = capabilities, on_attach = on_attach })
+          setup_server("jsonls", { capabilities = capabilities, on_attach = on_attach })
 
           -- Nix
-          lspconfig.nil_ls.setup({ capabilities = capabilities, on_attach = on_attach })
+          setup_server("nil_ls", { capabilities = capabilities, on_attach = on_attach })
 
           -- Diagnostics UI
           vim.diagnostic.config({
