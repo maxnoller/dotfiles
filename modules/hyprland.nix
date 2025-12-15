@@ -38,8 +38,9 @@
         gaps_in = 5;
         gaps_out = 20;
         border_size = 2;
-        "col.active_border" = "rgba(61afefff)";
-        "col.inactive_border" = "rgba(444444ff)";
+        # Nord theme: nord8 (primary cyan) for active, nord3 (muted) for inactive
+        "col.active_border" = "rgba(88C0D0ff)";
+        "col.inactive_border" = "rgba(4C566Aff)";
         resize_on_border = false;
         allow_tearing = false;
         layout = "dwindle";
@@ -58,7 +59,8 @@
           enabled = true;
           range = 4;
           render_power = 3;
-          color = "rgba(1a1a1aee)";
+          # Nord theme: nord0 (base dark)
+          color = "rgba(2E3440ee)";
         };
       };
 

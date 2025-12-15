@@ -5,9 +5,8 @@
     enable = true;
     style = ''
 /* ──────────────────────────────────────────────────────────────────────────
-   °˖* ૮(  • ᴗ ｡)っ🍸  pewdiepie/archdaemon/dionysh  shhheersh
-   Waybar CSS styling
-   vers. 1.0
+   Nord Theme - Arctic, north-bluish color palette
+   https://www.nordtheme.com/
    ────────────────────────────────────────────────────────────────────────── */
 
 /* === Base Waybar Styling ================================================= */
@@ -21,13 +20,13 @@
 }
 
 window#waybar {
-  background: #282c34;
+  background: #2E3440; /* nord0 */
   transition-property: background-color;
   transition-duration: 0.5s;
-  color: #9cdef2;
-  border: 3px solid #61afef;
-  border-left: 3px solid #56b6c2;
-  border-right: 3px solid #56b6c2;
+  color: #D8DEE9; /* nord4 */
+  border: 3px solid #88C0D0; /* nord8 */
+  border-left: 3px solid #8FBCBB; /* nord7 */
+  border-right: 3px solid #8FBCBB; /* nord7 */
   border-radius: 2px;
   opacity: 0.95;
 }
@@ -47,18 +46,18 @@ window#waybar {
   padding: 6px 6px;
   margin: 6px 3px;
   border-radius: 4px;
-  background-color: #2e3440;
-  color: #56b6c2;
+  background-color: #3B4252; /* nord1 */
+  color: #D8DEE9; /* nord4 */
 }
 
 #workspaces button.active {
-  color: #fab387;
-  background-color: #56b6c2;
+  color: #2E3440; /* nord0 */
+  background-color: #88C0D0; /* nord8 */
 }
 
 #workspaces button:hover {
-  color: #2e3440;
-  background-color: #56b6c2;
+  color: #2E3440; /* nord0 */
+  background-color: #8FBCBB; /* nord7 */
 }
 
 
@@ -68,34 +67,34 @@ window#waybar {
 .modules-right > widget > box {
   padding: 6px 12px;
   margin: 6px 6px;
-  background-color: #292d35;
-  border: 2px solid #61afef;
+  background-color: #3B4252; /* nord1 */
+  border: 2px solid #88C0D0; /* nord8 */
   border-radius: 2px;
 }
 #tray {
   padding: 6px 12px;
   margin: 6px 6px;
-  background-color: #292d35;
-  border: 2px solid #61afef;
+  background-color: #3B4252; /* nord1 */
+  border: 2px solid #88C0D0; /* nord8 */
   border-radius: 2px;
 }
 
 /* === Audio ============================================================== */
 
 #pulseaudio.muted {
-  background-color: #f38ba8;
-  color: #1e1e2e;
+  background-color: #BF616A; /* nord11 red */
+  color: #ECEFF4; /* nord6 */
 }
 
 
 /* === Bluetooth =========================================================== */
 
 #bluetooth.disabled {
-  color: #fab387;
+  color: #D08770; /* nord12 orange */
 }
 
 #custom-bluetooth {
-  color: #56b6c2;
+  color: #8FBCBB; /* nord7 */
   transition: color 0.2s ease-in-out;
 }
 
@@ -103,8 +102,8 @@ window#waybar {
 /* === Network ============================================================= */
 
 #network.disconnected {
-  background-color: #e06c75;
-  color: #1e1e2e;
+  background-color: #BF616A; /* nord11 red */
+  color: #ECEFF4; /* nord6 */
 }
 
 
@@ -113,11 +112,11 @@ window#waybar {
 #clock {
   font-weight: bold;
   font-size: 12px;
-  color: #fab387;
+  color: #88C0D0; /* nord8 */
   padding: 6px 12px;
   margin: 6px 6px;
-  background-color: #292d35;
-  border: 2px solid #61afef;
+  background-color: #3B4252; /* nord1 */
+  border: 2px solid #88C0D0; /* nord8 */
   border-radius: 2px;
 }
 
@@ -127,7 +126,7 @@ window#waybar {
 #custom-asus-profile {
   font-weight: bold;
   font-size: 12px;
-  color: #e5c07b;
+  color: #EBCB8B; /* nord13 yellow */
 }
 
 
@@ -140,8 +139,8 @@ window#waybar {
 
 /* 🔴 Critical */
 #battery.critical {
-  background-color: #bf616a;
-  color: white;
+  background-color: #BF616A; /* nord11 red */
+  color: #ECEFF4; /* nord6 */
   padding: 2px 6px;
   animation-name: blink;
   animation-duration: 0.5s;
@@ -152,22 +151,22 @@ window#waybar {
 
 /* 🟠 Warning */
 #battery.warning {
-  background-color: #fab387;
-  color: #2e3440;
+  background-color: #EBCB8B; /* nord13 yellow */
+  color: #2E3440; /* nord0 */
   padding: 2px 6px;
 }
 
 /* === Tooltips ============================================================ */
 
 tooltip {
-  color: #56b6c2;
-  background-color: #3b4252;
-  border: 1px solid #56b6c2;
+  color: #D8DEE9; /* nord4 */
+  background-color: #3B4252; /* nord1 */
+  border: 1px solid #88C0D0; /* nord8 */
   font-weight: bold;
 }
 
 tooltip label {
-  color: #78bec7;
+  color: #88C0D0; /* nord8 */
 }
     '';
     settings = [{

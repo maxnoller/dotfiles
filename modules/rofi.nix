@@ -18,9 +18,8 @@
       inherit (pkgs) writeText;
       themeFile = writeText "rofi-theme.rasi" ''
         /* ── Rofi Theme ──────────────────────────────
-           °˖* ૮(  • ᴗ ｡)っ🍸  pewdiepie/archdaemon/dionysh/shhheersh
-           Vers 1.0
-           Description: Custom styling for Rofi launcher 
+           Nord Theme - Arctic, north-bluish color palette
+           https://www.nordtheme.com/
            ─────────────────────────────────────────── */
 
         /* Global defaults */
@@ -28,7 +27,7 @@
           font: "JetBrainsMono Nerd Font 11";
           background-color: transparent;
           border-radius: 0px; 
-          text-color: #fab387; /* Default text color derived from element text */
+          text-color: #D8DEE9; /* nord4 */
         }
 
         /* ── Window ──────────────────────────────── */
@@ -38,7 +37,7 @@
           location: center;
           border: 2px;
           border-radius: 3px;
-          border-color: #61afef;
+          border-color: #88C0D0; /* nord8 */
           background-color: transparent;
           padding: 0px;
           margin: 30px 50px;
@@ -74,7 +73,7 @@
         element {
           padding: 6px 8px;
           spacing: 2px;
-          text-color: #fab387;
+          text-color: #D8DEE9; /* nord4 */
           border-radius: 0px;
           orientation: horizontal;
           children: [ element-icon, element-text ];
@@ -86,8 +85,8 @@
         }
 
         element selected {
-          background-color: #191919;
-          text-color: #e5c07b;
+          background-color: #3B4252; /* nord1 */
+          text-color: #88C0D0; /* nord8 */
           border-radius: 3px;
         }
         
@@ -110,9 +109,10 @@
           padding: 12px;
           expand: false;
           font: "JetBrainsMono Nerd Font 12";
-          text-color: #fab387;
+          text-color: #D8DEE9; /* nord4 */
           placeholder: "Search...";
-          background-color: #292e36;
+          placeholder-color: #4C566A; /* nord3 */
+          background-color: #3B4252; /* nord1 */
           border-radius: 3px 3px 0px 0px;
         }
 
@@ -120,7 +120,7 @@
         listview {
           lines: 10;
           columns: 1;
-          background-color: rgba(46, 52, 64, 0.95);
+          background-color: rgba(46, 52, 64, 0.95); /* nord0 with transparency */
           border-radius: 0px 0px 3px 3px;
           padding: 10px;
         }

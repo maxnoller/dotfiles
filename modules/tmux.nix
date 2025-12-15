@@ -47,20 +47,20 @@
     ];
 
     extraConfig = ''
-      # Blue monochrome theme - override everything
-      set -g status-bg "#0f0f1a"
-      set -g status-fg "#6db3f2"
-      set -g status-style "bg=#0f0f1a,fg=#6db3f2"
-      set -g status-left-style "bg=#0f0f1a,fg=#6db3f2"
-      set -g status-right-style "bg=#0f0f1a,fg=#6db3f2"
-      set -g pane-border-style "fg=#1a1a2e"
-      set -g pane-active-border-style "fg=#4a90d9"
-      set -g message-style "bg=#1a1a2e,fg=#6db3f2"
-      set -g mode-style "bg=#4a90d9,fg=#0f0f1a"
+      # Nord theme - arctic, north-bluish color palette
+      set -g status-bg "#2E3440"
+      set -g status-fg "#D8DEE9"
+      set -g status-style "bg=#2E3440,fg=#D8DEE9"
+      set -g status-left-style "bg=#2E3440,fg=#88C0D0"
+      set -g status-right-style "bg=#2E3440,fg=#88C0D0"
+      set -g pane-border-style "fg=#3B4252"
+      set -g pane-active-border-style "fg=#88C0D0"
+      set -g message-style "bg=#3B4252,fg=#D8DEE9"
+      set -g mode-style "bg=#88C0D0,fg=#2E3440"
       
-      # Window status
-      set -g window-status-style "bg=#0f0f1a,fg=#5c5c70"
-      set -g window-status-current-style "bg=#0f0f1a,fg=#6db3f2,bold"
+      # Window status - Nord colors
+      set -g window-status-style "bg=#2E3440,fg=#4C566A"
+      set -g window-status-current-style "bg=#2E3440,fg=#88C0D0,bold"
       set -g window-status-format " #I:#W "
       set -g window-status-current-format " #I:#W "
       

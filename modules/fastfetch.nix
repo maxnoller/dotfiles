@@ -15,7 +15,8 @@
           binaryPrefix = "si";
         };
         color = {
-          keys = "blue";
+          # Nord theme: cyan for keys
+          keys = "cyan";
           output = "white";
         };
         separator = "  ";
