@@ -16,6 +16,7 @@
     ./modules/tools.nix
     ./modules/claude.nix
     ./modules/fastfetch.nix
+    ./modules/neovim.nix  # nixCats-managed Neovim
   ];
 
   home.sessionVariables = {
@@ -26,9 +27,7 @@
     SSH_AUTH_SOCK = "${config.home.homeDirectory}/.bitwarden-ssh-agent.sock";
   };
   
-  xdg.configFile."nvim" = {
-    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/config/nvim/.config/nvim";
-  };
+  # NOTE: nvim config is now managed by nixCats in modules/neovim.nix
 
   programs.home-manager.enable = true;
 }
