@@ -23,6 +23,10 @@
 
     # Terminal
     ghostty
+
+    # Communication & Media
+    spotify
+    discord
   ];
 
   # Fix Ghostty desktop file for non-NixOS (disable DBusActivatable)
