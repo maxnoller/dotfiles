@@ -29,6 +29,8 @@
     EDITOR = "nvim";
     CHROME_BIN = "google-chrome-stable";
     PUPPETEER_EXECUTABLE_PATH = "google-chrome-stable";
+    # Bitwarden SSH Agent (see: https://bitwarden.com/help/ssh-agent/)
+    SSH_AUTH_SOCK = "${config.home.homeDirectory}/.bitwarden-ssh-agent.sock";
   };
   
   xdg.configFile."nvim" = {

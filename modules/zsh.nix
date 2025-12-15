@@ -30,6 +30,9 @@
       # Source Nix profile if it exists (critical for usage of nix outside of nixos)
       if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then . $HOME/.nix-profile/etc/profile.d/nix.sh; fi
       
+      # Force Bitwarden SSH Agent (overrides GNOME Keyring or other agents)
+      export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+      
       # Run fastfetch on new interactive shells (but not in nested shells or scripts)
       if [[ -z "$INSIDE_EMACS" && -z "$VSCODE_INJECTION" ]]; then
         fastfetch
@@ -61,7 +64,7 @@
     };
   };
 
-  # Starship prompt - minimal, blue monochrome
+  # Starship prompt - Nord theme
   programs.starship = {
     enable = true;
     settings = {
@@ -70,24 +73,27 @@
       format = "$directory$git_branch$character ";
       
       character = {
-        success_symbol = "[❯](bold blue)";
-        error_symbol = "[❯](bold red)";
+        # Nord: nord8 cyan for success, nord11 red for errors
+        success_symbol = "[❯](#88C0D0 bold)";
+        error_symbol = "[❯](#BF616A bold)";
       };
       
       directory = {
         truncation_length = 2;
-        style = "bold bright-blue";
+        # Nord: nord9 secondary blue
+        style = "#81A1C1 bold";
       };
       
       git_branch = {
         symbol = "";
         format = "[$branch]($style) ";
-        style = "blue";
+        # Nord: nord7 cyan accent
+        style = "#8FBCBB";
       };
     };
   };
 
-  # FZF - blue/black theme
+  # FZF - Nord theme
   programs.fzf = {
     enable = true;
     enableZshIntegration = true;
@@ -97,19 +103,20 @@
       "--layout=reverse"
       "--border"
     ];
+    # Nord color palette
     colors = {
-      "bg+" = "#1a1a2e";
-      "bg" = "#0f0f1a";
-      "spinner" = "#4a90d9";
-      "hl" = "#5c9fd4";
-      "fg" = "#a0a0b0";
-      "header" = "#4a90d9";
-      "info" = "#5c9fd4";
-      "pointer" = "#6db3f2";
-      "marker" = "#6db3f2";
-      "fg+" = "#d0d0e0";
-      "prompt" = "#4a90d9";
-      "hl+" = "#6db3f2";
+      "bg+" = "#3B4252";   # nord1
+      "bg" = "#2E3440";    # nord0
+      "spinner" = "#88C0D0"; # nord8
+      "hl" = "#88C0D0";    # nord8
+      "fg" = "#D8DEE9";    # nord4
+      "header" = "#88C0D0"; # nord8
+      "info" = "#81A1C1";  # nord9
+      "pointer" = "#88C0D0"; # nord8
+      "marker" = "#A3BE8C"; # nord14 green
+      "fg+" = "#ECEFF4";   # nord6
+      "prompt" = "#88C0D0"; # nord8
+      "hl+" = "#8FBCBB";   # nord7
     };
   };
 }
