@@ -9,6 +9,9 @@
     pnpm
     moon
     proto
+    kubernetes-helm
+    kubectl
+    fluxcd
     
     # Utilities
     ripgrep
