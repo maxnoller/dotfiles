@@ -57,11 +57,19 @@
           extraModules = [ ./hosts/desktop.nix ];
         };
 
+        # Desktop for administrator user (non-NixOS machine)
+        "administrator" = mkHome {
+          extraModules = [
+            ./hosts/desktop.nix
+            { home.username = "administrator"; home.homeDirectory = "/home/administrator"; }
+          ];
+        };
+
         # Server without GPU or GUI apps
         "server" = mkHome {
           extraModules = [ ./hosts/server.nix ];
         };
-        
+
         # Legacy alias
         "max" = mkHome {
           extraModules = [ ./hosts/desktop.nix ];
