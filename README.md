@@ -149,33 +149,35 @@ uv run pytest --cov=dotfiles
 
 ## Troubleshooting
 
-### Chrome SUID Sandbox Error on Ubuntu 24.04
+### SUID Sandbox Error on Ubuntu 24.04 (Chrome, Electron apps)
 
-When running Google Chrome installed via Nix/Home Manager on Ubuntu 24.04, you may see:
+When running Chrome or Electron apps (Bitwarden, VS Code, etc.) installed via Nix/Home Manager on Ubuntu 24.04+, you may see:
 
 ```
 The SUID sandbox helper binary was found, but is not configured correctly.
 ```
 
-This happens because Ubuntu 24.04 restricts unprivileged user namespaces via AppArmor, and the default Chrome profile only covers `/opt/google/chrome/chrome`, not the Nix store path.
+This happens because Ubuntu 24.04 restricts unprivileged user namespaces via AppArmor, and the default profiles don't cover Nix store paths.
 
-**Fix:** Create an AppArmor profile for Nix Chrome:
+**Fix:** Create an AppArmor profile for all Nix store executables:
 
 ```bash
-sudo tee /etc/apparmor.d/nix-chrome << 'EOF'
+sudo tee /etc/apparmor.d/nix-store << 'EOF'
 abi <abi/4.0>,
 include <tunables/global>
 
-profile nix-chrome /nix/store/*/bin/google-chrome-stable flags=(unconfined) {
+# Grant userns permission to all Nix store executables
+# Fixes Chrome/Electron sandbox issues on Ubuntu 24.04+ with Nix/Home Manager
+profile nix-store /nix/store/** flags=(unconfined) {
   userns,
-  include if exists <local/nix-chrome>
+  include if exists <local/nix-store>
 }
 EOF
 
-sudo apparmor_parser -r /etc/apparmor.d/nix-chrome
+sudo apparmor_parser -r /etc/apparmor.d/nix-store
 ```
 
-This grants the Nix-installed Chrome permission to use unprivileged user namespaces while maintaining full sandbox security.
+This grants all Nix-installed applications permission to use unprivileged user namespaces while maintaining full sandbox security.
 
 ## License
 

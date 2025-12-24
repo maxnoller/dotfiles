@@ -1,8 +1,8 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, lib, ... }:
 
 {
-  home.username = "max";
-  home.homeDirectory = "/home/max";
+  home.username = lib.mkDefault "max";
+  home.homeDirectory = lib.mkDefault "/home/max";
   home.stateVersion = "24.05";
   
   # Enable generic Linux integration (for non-NixOS)
