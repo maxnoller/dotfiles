@@ -2,13 +2,18 @@
 # Use this on real hardware with NVIDIA GPU.
 # Replace hardware-vm.nix import with this + hardware-configuration.nix
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   # OpenGL (driSupport is now automatic in nixpkgs-unstable)
   hardware.graphics = {
     enable = true;
-    enable32Bit = true;  # For Steam/32-bit games
+    enable32Bit = true; # For Steam/32-bit games
   };
 
   # NVIDIA driver
@@ -38,6 +43,6 @@
 
   # Kernel parameters for NVIDIA
   boot.kernelParams = [
-    "nvidia-drm.modeset=1"  # Required for Wayland
+    "nvidia-drm.modeset=1" # Required for Wayland
   ];
 }

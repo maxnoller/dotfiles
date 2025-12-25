@@ -5,14 +5,14 @@
   # This creates /run/opengl-driver with proper NVIDIA libraries
   #
   # ⚠️  IMPORTANT: Update version and hash when upgrading NVIDIA drivers!
-  # 
+  #
   # To get the hash for a new version:
   #   nix store prefetch-file https://download.nvidia.com/XFree86/Linux-x86_64/<VERSION>/NVIDIA-Linux-x86_64-<VERSION>.run
   #
   # After updating, run:
   #   home-manager switch --flake .#max
   #   sudo /nix/store/.../non-nixos-gpu-setup  (path shown in activation output)
-  
+
   targets.genericLinux.gpu.nvidia = {
     enable = true;
     version = "550.163.01";

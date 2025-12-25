@@ -3,10 +3,10 @@
 
 {
   imports = [
-    ../modules/gpu.nix       # NVIDIA GPU driver config
-    ../modules/browsers.nix  # Chrome
+    ../../../modules/home/gpu.nix # NVIDIA GPU driver config
+    ../../../modules/home/browsers.nix # Chrome
   ];
-  
+
   # Desktop-specific packages
   home.packages = with pkgs; [
     # Add any desktop-only packages here

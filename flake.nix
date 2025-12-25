@@ -71,7 +71,7 @@
             home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
               extraSpecialArgs = { inherit inputs; };
-              modules = [ ./home.nix ] ++ extraModules;
+              modules = [ ./modules/core/home.nix ] ++ extraModules;
             };
 
           # Helper function to create NixOS system configurations
@@ -94,7 +94,7 @@
                   home-manager.useUserPackages = true;
                   home-manager.extraSpecialArgs = { inherit inputs; };
                   home-manager.users.max = {
-                    imports = [ ./home-nixos.nix ] ++ homeModules;
+                    imports = [ ./modules/core/home-nixos.nix ] ++ homeModules;
                   };
                 }
               ]

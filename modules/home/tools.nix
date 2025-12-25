@@ -12,14 +12,14 @@
     kubernetes-helm
     kubectl
     fluxcd
-    
+
     # Utilities
     ripgrep
     fd
     jq
     tree
     curl
-    
+
     # Security / Password Management
     bitwarden-desktop
     bitwarden-cli
@@ -41,13 +41,16 @@
     genericName = "Terminal";
     exec = "${pkgs.ghostty}/bin/ghostty";
     terminal = false;
-    categories = [ "System" "TerminalEmulator" ];
+    categories = [
+      "System"
+      "TerminalEmulator"
+    ];
     icon = "com.mitchellh.ghostty";
     comment = "A terminal emulator";
     settings = {
       StartupNotify = "true";
       StartupWMClass = "com.mitchellh.ghostty";
-      DBusActivatable = "false";  # Fix for non-NixOS
+      DBusActivatable = "false"; # Fix for non-NixOS
       Keywords = "terminal;tty;pty;";
     };
   };
@@ -57,7 +60,12 @@
     genericName = "Music Player";
     exec = "${pkgs.spotify}/bin/spotify %U";
     terminal = false;
-    categories = [ "Audio" "Music" "Player" "AudioVideo" ];
+    categories = [
+      "Audio"
+      "Music"
+      "Player"
+      "AudioVideo"
+    ];
     icon = "spotify-client";
     comment = "Music streaming service";
     settings = {
@@ -72,7 +80,10 @@
     genericName = "Internet Messenger";
     exec = "${pkgs.discord}/bin/discord";
     terminal = false;
-    categories = [ "Network" "InstantMessaging" ];
+    categories = [
+      "Network"
+      "InstantMessaging"
+    ];
     icon = "discord";
     comment = "All-in-one voice and text chat";
     settings = {
