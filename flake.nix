@@ -7,97 +7,130 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    stylix.url = "github:danth/stylix";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
-    let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-        config.nvidia.acceptLicense = true;
-      };
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      home-manager,
+      flake-parts,
+      ...
+    }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [ "x86_64-linux" ];
+      imports = [
+        inputs.treefmt-nix.flakeModule
+      ];
 
-      # Helper function to create home configurations (for standalone use on non-NixOS)
-      mkHome = { extraModules ? [] }:
-        home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          extraSpecialArgs = { inherit inputs; };
-          modules = [ ./home.nix ] ++ extraModules;
+      perSystem =
+        {
+          config,
+          self',
+          inputs',
+          pkgs,
+          ...
+        }:
+        {
+          # Auto-formatting
+          treefmt.config = import ./treefmt.nix { inherit pkgs; };
+
+          # DevShell
+          devShells.default = pkgs.mkShell {
+            packages = with pkgs; [
+              git
+              just
+              nix-output-monitor
+              nvd # Nix version diff
+              statix
+              deadnix
+            ];
+          };
         };
 
-      # Helper function to create NixOS system configurations
-      mkNixOS = { hostname, extraModules ? [], homeModules ? [] }:
-        nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = { inherit inputs; };
-          modules = [
-            ./nixos/configuration.nix
-            { networking.hostName = hostname; }
-            home-manager.nixosModules.home-manager
+      flake =
+        let
+          system = "x86_64-linux";
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+            config.nvidia.acceptLicense = true;
+          };
+
+          # Helper function to create home configurations
+          mkHome =
             {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = { inherit inputs; };
-              home-manager.users.max = {
-                imports = [ ./home-nixos.nix ] ++ homeModules;
-              };
-            }
-          ] ++ extraModules;
-        };
-    in
-    {
-      # ============================================
-      # Standalone Home Manager (for Debian, etc.)
-      # Usage: home-manager switch --flake .#desktop
-      # ============================================
-      homeConfigurations = {
-        # Desktop with NVIDIA GPU and GUI apps
-        "desktop" = mkHome {
-          extraModules = [ ./hosts/desktop.nix ];
-        };
+              extraModules ? [ ],
+            }:
+            home-manager.lib.homeManagerConfiguration {
+              inherit pkgs;
+              extraSpecialArgs = { inherit inputs; };
+              modules = [ ./home.nix ] ++ extraModules;
+            };
 
-        # Desktop for administrator user (non-NixOS machine)
-        "administrator" = mkHome {
-          extraModules = [
-            ./hosts/desktop.nix
-            { home.username = "administrator"; home.homeDirectory = "/home/administrator"; }
-          ];
-        };
+          # Helper function to create NixOS system configurations
+          mkNixOS =
+            {
+              hostname,
+              extraModules ? [ ],
+              homeModules ? [ ],
+            }:
+            nixpkgs.lib.nixosSystem {
+              inherit system;
+              specialArgs = { inherit inputs; };
+              modules = [
+                ./systems/nixos/nixos-desktop/default.nix
+                { networking.hostName = hostname; }
+                inputs.stylix.nixosModules.stylix
+                home-manager.nixosModules.home-manager
+                {
+                  home-manager.useGlobalPkgs = true;
+                  home-manager.useUserPackages = true;
+                  home-manager.extraSpecialArgs = { inherit inputs; };
+                  home-manager.users.max = {
+                    imports = [ ./home-nixos.nix ] ++ homeModules;
+                  };
+                }
+              ]
+              ++ extraModules;
+            };
+        in
+        {
+          # ============================================
+          # Standalone Home Manager
+          # ============================================
+          homeConfigurations = {
+            "desktop" = mkHome {
+              extraModules = [ ./systems/home/desktop/default.nix ];
+            };
+            "server" = mkHome {
+              extraModules = [ ./systems/home/server/default.nix ];
+            };
+          };
 
-        # Server without GPU or GUI apps
-        "server" = mkHome {
-          extraModules = [ ./hosts/server.nix ];
-        };
+          # ============================================
+          # NixOS Systems
+          # ============================================
+          nixosConfigurations = {
+            "desktop-vm" = mkNixOS {
+              hostname = "nixos-desktop";
+              extraModules = [ ./modules/nixos/hardware-vm.nix ];
+            };
 
-        # Legacy alias
-        "max" = mkHome {
-          extraModules = [ ./hosts/desktop.nix ];
+            "desktop-nixos" = mkNixOS {
+              hostname = "nixos-desktop";
+              extraModules = [
+                ./modules/nixos/hardware-nvidia.nix
+                # ./modules/nixos/hardware-configuration.nix # On real install
+              ];
+            };
+          };
         };
-      };
-
-      # ============================================
-      # NixOS System Configurations
-      # ============================================
-      nixosConfigurations = {
-        # VM for testing (no NVIDIA, use virtual graphics)
-        # Usage: nixos-rebuild build-vm --flake .#desktop-vm
-        #        ./result/bin/run-nixos-desktop-vm
-        "desktop-vm" = mkNixOS {
-          hostname = "nixos-desktop";
-          extraModules = [ ./nixos/hardware-vm.nix ];
-        };
-
-        # Real desktop with NVIDIA (for spare SSD install)
-        # Usage: sudo nixos-rebuild switch --flake .#desktop-nixos
-        "desktop-nixos" = mkNixOS {
-          hostname = "nixos-desktop";
-          extraModules = [
-            ./nixos/hardware-nvidia.nix
-            # On real install, also add:
-            # ./nixos/hardware-configuration.nix  # Generated by nixos-generate-config
-          ];
-        };
-      };
     };
 }
