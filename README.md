@@ -1,155 +1,92 @@
 # Dotfiles
 
-Development environment setup CLI built with Python, using uv for package management.
+Declarative development environment using **Nix Flakes** and **Home Manager**.
 
-Supports **Ubuntu**, **Debian**, and **Arch Linux**.
+Supports **standalone Home Manager** (on Debian, Ubuntu, etc.) and **full NixOS** systems.
 
 ## Quick Start
 
-**One-liner** (fresh machine, installs everything):
+### Standalone Home Manager (Debian/Ubuntu)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/maxnoller/dotfiles/main/scripts/bootstrap.sh | bash
-```
+# Install Nix (if not already installed)
+sh <(curl -L https://nixos.org/nix/install) --daemon
 
-**Manual** (if you already have git/curl):
-
-```bash
+# Clone and apply
 git clone https://github.com/maxnoller/dotfiles.git ~/dotfiles
-~/dotfiles/setup.sh
+cd ~/dotfiles
+home-manager switch --flake .#desktop
 ```
 
-### Installation Options
-
-The bootstrap script supports several options:
+### NixOS
 
 ```bash
-# Install a specific version
-curl -fsSL ... | bash -s -- --version v0.1.0
+# Clone dotfiles
+git clone https://github.com/maxnoller/dotfiles.git ~/dotfiles
+cd ~/dotfiles
 
-# Install from local source (for development)
-curl -fsSL ... | bash -s -- --local
+# Build VM for testing
+nixos-rebuild build-vm --flake .#desktop-vm
+./result/bin/run-nixos-desktop-vm
 
-# Clone to a custom directory
-curl -fsSL ... | bash -s -- --dir ~/my-dotfiles
-
-# Use a specific branch
-curl -fsSL ... | bash -s -- --branch dev
+# Real install (after nixos-generate-config)
+sudo nixos-rebuild switch --flake .#desktop-nixos
 ```
 
-The `setup.sh` script also supports:
+## Configurations
 
-```bash
-# Install from local source instead of GitHub release
-./setup.sh --local
-
-# Install a specific version
-./setup.sh --version v0.1.0
-```
-
-By default, the CLI is installed from the latest GitHub release. Use `--local` for development.
+| Flake Output | Target | Description |
+|--------------|--------|-------------|
+| `homeConfigurations.desktop` | Home Manager | Desktop with NVIDIA GPU, GUI apps |
+| `homeConfigurations.server` | Home Manager | Headless server (no GUI) |
+| `nixosConfigurations.desktop-vm` | NixOS | VM for testing |
+| `nixosConfigurations.desktop-nixos` | NixOS | Real desktop with NVIDIA + Hyprland |
 
 ## Commands
 
-After setup, `dotfiles` is available globally:
-
 ```bash
-# Full installation
-dotfiles install
+# Apply Home Manager configuration
+home-manager switch --flake .#desktop
 
-# Preview changes without applying
-dotfiles install --dry-run
+# Update flakes and apply
+nix flake update && home-manager switch --flake .#desktop
 
-# Update/sync configurations
-dotfiles sync
+# Validate flake
+nix flake check
 
-# Check installation status
-dotfiles status
-
-# Remove symlinks
-dotfiles uninstall
-
-# Remove symlinks and tools
-dotfiles uninstall --remove-tools
+# Format Nix files
+nix run nixpkgs#nixfmt-rfc-style -- *.nix **/*.nix
 ```
-
-## What Gets Installed
-
-| Component | Source | Description |
-|-----------|--------|-------------|
-| **System Packages** | apt/pacman | git, zsh, stow, curl, neovim |
-| **Oh My Zsh** | installer | Zsh framework with Powerlevel10k theme |
-| **Proto** | installer | Multi-language version manager |
-| **Node.js** | proto | JavaScript runtime |
-| **uv** | proto | Python package manager |
-| **gh** | proto | GitHub CLI |
-| **TPM** | git | Tmux Plugin Manager |
-| **GitHub CLI Extensions** | gh | gh-act |
-
-## Configuration
-
-Configurations are managed via GNU Stow and stored in the `config/` directory:
-
-- `config/nvim/` → `~/.config/nvim`
-- `config/tmux/` → `~/.tmux.conf`
-- `config/zsh/` → `~/.zshrc`, `~/.p10k.zsh`
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DOTFILES_GIT_NAME` | Git user name | (prompted) |
-| `DOTFILES_GIT_EMAIL` | Git user email | (prompted) |
-| `DOTFILES_GIT_WORK_EMAIL` | Git work email | (optional) |
-| `DOTFILES_GIT_WORK_REMOTE_PATTERN` | Pattern to match work remotes | (optional) |
-| `DOTFILES_NODE_VERSION` | Node.js version | `23` |
 
 ## Project Structure
 
 ```
 dotfiles/
-├── src/dotfiles/          # Python CLI source
-│   ├── cli.py             # Typer CLI commands
-│   ├── config.py          # Pydantic Settings configuration
-│   ├── console.py         # Rich console output
-│   ├── runner.py          # Subprocess runner
-│   └── tasks/             # Task modules
-├── config/                # Stow packages (dotfile configs)
-│   ├── nvim/
-│   ├── tmux/
-│   └── zsh/
-├── scripts/               # Utility scripts
-├── tests/                 # Pytest tests
-├── .prototools            # Proto version configuration
-├── pyproject.toml         # Project configuration
-└── setup.sh               # Bootstrap script
-```
-
-## Development
-
-```bash
-# Install dev dependencies
-uv sync
-
-# Run linter
-uv run ruff check src/ tests/
-
-# Run formatter
-uv run ruff format src/ tests/
-
-# Run type checker
-uv run basedpyright
-
-# Run tests
-uv run pytest
-
-# Run tests with coverage
-uv run pytest --cov=dotfiles
+├── flake.nix              # Nix flake entry point
+├── flake.lock             # Locked dependencies
+├── home.nix               # Shared Home Manager config
+├── home-nixos.nix         # Shared Home Manager config for NixOS
+├── config/                # App configurations (zsh, tmux, etc.)
+├── systems/               # System Configurations
+│   ├── home/              # Home Manager systems
+│   │   ├── desktop/       # Desktop profile
+│   │   └── server/        # Server profile
+│   └── nixos/             # NixOS systems
+│       └── nixos-desktop/ # Main desktop config
+└── modules/               # Reusable modules
+    ├── home/              # Home Manager modules
+    │   ├── zsh.nix        # Zsh + Starship + FZF
+    │   ├── git.nix        # Git + GitHub CLI
+    │   ├── tmux.nix       # Tmux + plugins
+    │   └── ...
+    └── nixos/             # NixOS modules
+        ├── hardware-vm.nix
+        └── hardware-nvidia.nix
 ```
 
 ## Troubleshooting
 
-### SUID Sandbox Error on Ubuntu 24.04 (Chrome, Electron apps)
+### SUID Sandbox Error on Ubuntu 24.04+ (Chrome, Electron apps)
 
 When running Chrome or Electron apps (Bitwarden, VS Code, etc.) installed via Nix/Home Manager on Ubuntu 24.04+, you may see:
 
@@ -157,17 +94,15 @@ When running Chrome or Electron apps (Bitwarden, VS Code, etc.) installed via Ni
 The SUID sandbox helper binary was found, but is not configured correctly.
 ```
 
-This happens because Ubuntu 24.04 restricts unprivileged user namespaces via AppArmor, and the default profiles don't cover Nix store paths.
+This happens because Ubuntu 24.04 restricts unprivileged user namespaces via AppArmor.
 
-**Fix:** Create an AppArmor profile for all Nix store executables:
+**Fix:** Create an AppArmor profile for Nix store executables:
 
 ```bash
 sudo tee /etc/apparmor.d/nix-store << 'EOF'
 abi <abi/4.0>,
 include <tunables/global>
 
-# Grant userns permission to all Nix store executables
-# Fixes Chrome/Electron sandbox issues on Ubuntu 24.04+ with Nix/Home Manager
 profile nix-store /nix/store/** flags=(unconfined) {
   userns,
   include if exists <local/nix-store>
@@ -176,8 +111,6 @@ EOF
 
 sudo apparmor_parser -r /etc/apparmor.d/nix-store
 ```
-
-This grants all Nix-installed applications permission to use unprivileged user namespaces while maintaining full sandbox security.
 
 ## License
 
