@@ -5,6 +5,7 @@
   imports = [
     ../../../modules/home/gpu.nix # NVIDIA GPU driver config
     ../../../modules/home/browsers.nix # Chrome
+    ../../../modules/home/bitwarden.nix
   ];
 
   # Desktop-specific packages
